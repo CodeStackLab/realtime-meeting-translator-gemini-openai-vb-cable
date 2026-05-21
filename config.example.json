@@ -2,7 +2,7 @@
   "gemini_api_key": "",
   "openai_api_key": "",
   "provider": "openai",
-  "model": "gpt-realtime-mini",
+  "model": "gpt-realtime-translate",
   "voice": "cedar",
   "buyer_voice_style": "male",
   "translation_mode": "fast",

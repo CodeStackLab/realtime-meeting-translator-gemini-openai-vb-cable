@@ -18,7 +18,8 @@ const REALTIME_MODELS = {
     },
   ],
   openai: [
-    { value: 'gpt-realtime-mini', label: 'GPT Realtime mini - cheapest testing model' },
+    { value: 'gpt-realtime-translate', label: 'GPT Realtime Translate - cheapest speech translation' },
+    { value: 'gpt-realtime-mini', label: 'GPT Realtime mini - cheapest general voice model' },
     { value: 'gpt-realtime-2', label: 'GPT Realtime 2 - most capable realtime voice' },
     { value: 'gpt-realtime-1.5', label: 'GPT Realtime 1.5 - best audio in/out voice' },
     { value: 'gpt-realtime', label: 'GPT Realtime - stable production voice' },
