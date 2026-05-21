@@ -18,9 +18,9 @@ function normalizeTranslationMode(mode) {
 
 function getRealtimeInputConfig(mode = 'fast') {
   const timings = {
-    fast: { prefixPaddingMs: 60, silenceDurationMs: 100 },
-    balanced: { prefixPaddingMs: 140, silenceDurationMs: 350 },
-    accurate: { prefixPaddingMs: 220, silenceDurationMs: 800 },
+    fast: { prefixPaddingMs: 20, silenceDurationMs: 50 },
+    balanced: { prefixPaddingMs: 100, silenceDurationMs: 220 },
+    accurate: { prefixPaddingMs: 220, silenceDurationMs: 650 },
   };
   const selected = timings[normalizeTranslationMode(mode)];
   return {

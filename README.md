@@ -8,7 +8,7 @@ The app uses VB-Cable A+B virtual audio cables to route meeting audio into a rea
 
 - Your Hindi speech is translated to English voice for the buyer.
 - Buyer English speech is translated to Hindi captions and optional Hindi voice for you.
-- Fast Streaming Realtime mode is the default for both sides, so speech starts translating while the meeting is live.
+- Fast Streaming Realtime mode is the default for both sides and uses aggressive Gemini VAD for the lowest safe delay.
 - Works with Zoom, Microsoft Teams, Google Meet, and similar meeting apps through normal audio device routing.
 - Uses Google Gemini Live for realtime speech-to-speech translation.
 - Uses CABLE-A for incoming meeting audio and CABLE-B for outgoing translated voice.
@@ -130,7 +130,7 @@ Buyer speaks English
 - Do not commit your real API keys. Local `config.json` is ignored by git.
 - Use headphones to avoid echo.
 - Realtime speech-to-speech translation usually has a small delay, often around 1-3 seconds.
-- `Ultra Realtime Streaming` is the default for lowest delay. It sends short translated voice chunks while you keep speaking; use `Balanced Sentence Mode` if you prefer cleaner phrase boundaries.
+- `Ultra Realtime Streaming` is the default for lowest delay. Gemini Live derives turns from voice activity and end-of-speech, so tiny natural pauses produce the fastest results. Use `Balanced Sentence Mode` if you prefer cleaner phrase boundaries.
 
 ## License
 

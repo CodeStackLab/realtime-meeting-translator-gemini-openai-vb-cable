@@ -242,10 +242,10 @@ class LiveSession {
   }
 
   async _maybeSoftFlush(rms) {
-    // Gemini Live audio sessions can close with code 1007 when the client forces
-    // repeated turn boundaries during native audio output. Let provider VAD own
-    // endpointing for stability.
-    if (this.provider === 'gemini') return;
+    // Gemini Live derives turns from VAD/end-of-speech. Repeated forced
+    // audioStreamEnd calls during native audio can close the channel, so keep
+    // this disabled for Gemini-only builds and tune VAD in main.js instead.
+    return;
     if (this.translationMode !== 'fast') return;
 
     const now = Date.now();

@@ -41,7 +41,7 @@ The app filters common internal-analysis text and removes the conversation histo
 
 ## Realtime Feels Slow Or Broken Into Words
 
-Use the default `Ultra Realtime Streaming` when the buyer must hear translated voice while you keep speaking. It sends short translated chunks during long speech. If words are joining together or sentences are unclear, switch to `Balanced Sentence Mode` or `Accurate Sentence Mode`.
+Use the default `Ultra Realtime Streaming` when the buyer must hear translated voice as quickly as Gemini safely allows. Gemini Live derives turns from voice activity and end-of-speech, so tiny natural pauses give the fastest results. If words are joining together or sentences are unclear, switch to `Balanced Sentence Mode` or `Accurate Sentence Mode`.
 
 - Gemini model: `gemini-2.5-flash-native-audio-preview-12-2025`
 - Good internet connection
