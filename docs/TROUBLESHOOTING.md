@@ -33,6 +33,12 @@ Wrong behavior:
 
 If wrong behavior appears, restart the app and make sure you are using the latest code.
 
+The app prompt is configured for translation only. It should not answer questions, continue the conversation, or output internal analysis.
+
+## Caption Looks Broken Or Shows Model Analysis
+
+The app filters common internal-analysis text and removes the conversation history panel. If you still see labels such as `Awaiting Further Input`, restart the app and check that you are running the newest build.
+
 ## No Audio Sent To Buyer
 
 Check:

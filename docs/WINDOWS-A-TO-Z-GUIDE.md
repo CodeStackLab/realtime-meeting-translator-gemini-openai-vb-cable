@@ -72,6 +72,13 @@ Then select:
 - Provider: `Google Gemini Live` or `OpenAI Realtime`
 - Model: the best realtime speech/audio model available in your account
 - Voice: your preferred output voice
+- Buyer Hindi voice style: Auto, Male, or Female. Manual selection is most reliable because not every realtime provider exposes speaker-gender detection.
+
+Recommended models:
+
+- Gemini: `gemini-2.5-flash-native-audio-preview-12-2025`
+- OpenAI in this app: `gpt-realtime-2`, then `gpt-realtime-1.5`, then `gpt-realtime-mini`
+- OpenAI dedicated live translation endpoint: `gpt-realtime-translate`
 
 The app is free to use, but your Gemini/OpenAI provider may have quota, billing, or model-access rules.
 

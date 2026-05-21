@@ -71,9 +71,10 @@ In Settings:
 
 Recommended:
 
-- Use Gemini native audio models for Gemini speech-to-speech.
-- Use OpenAI Realtime models for OpenAI speech-to-speech.
-- If one provider/model is slow or unavailable, try the other provider/model.
+- For OpenAI pure live translation, use `gpt-realtime-translate` when you integrate the dedicated realtime translations endpoint.
+- For OpenAI speech-to-speech voice interaction in this app, start with `gpt-realtime-2`; use `gpt-realtime-1.5` for strong audio-in/audio-out voice, or `gpt-realtime-mini` for lower cost.
+- For Gemini speech-to-speech in this app, start with `gemini-2.5-flash-native-audio-preview-12-2025`.
+- If one provider/model is slow, unavailable, or too costly, switch provider/model in Settings.
 
 ## Meeting App Audio Settings
 

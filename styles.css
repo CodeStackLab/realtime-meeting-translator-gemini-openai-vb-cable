@@ -110,7 +110,7 @@ button { cursor: pointer; }
   gap: 16px;
 }
 
-.route-card, .live-column, .history-panel {
+.route-card, .live-column {
   border: 1px solid rgba(148, 163, 184, 0.16);
   background: rgba(16, 22, 36, 0.86);
   border-radius: var(--radius);
@@ -154,11 +154,11 @@ button { cursor: pointer; }
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) 360px minmax(280px, 1fr);
+  grid-template-columns: minmax(360px, 1fr) minmax(360px, 1fr);
   gap: 16px;
 }
 
-.live-column, .history-panel {
+.live-column {
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -244,37 +244,6 @@ button { cursor: pointer; }
 }
 .hindi-text { font-family: "Noto Sans Devanagari", Inter, sans-serif; font-size: 16px; }
 .placeholder { color: var(--soft); }
-
-.history-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.empty-state {
-  margin-top: 36px;
-  text-align: center;
-  color: var(--soft);
-  line-height: 1.5;
-}
-.history-item {
-  border: 1px solid var(--line);
-  background: rgba(13, 19, 33, 0.7);
-  border-radius: var(--radius);
-  padding: 11px;
-}
-.history-top {
-  display: flex;
-  justify-content: space-between;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.history-original { color: var(--muted); font-size: 12px; line-height: 1.45; }
-.history-translation { margin-top: 7px; line-height: 1.5; }
 
 .settings-overlay {
   position: fixed;

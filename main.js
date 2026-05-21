@@ -210,6 +210,10 @@ ipcMain.handle('live-open', (event, {
             model: `models/${selectedModel}`,
             generationConfig: {
               responseModalities: outputMode === 'audio' ? ['AUDIO'] : ['TEXT'],
+              thinkingConfig: {
+                thinkingBudget: 0,
+                includeThoughts: false,
+              },
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: { voiceName: voice || 'Puck' },

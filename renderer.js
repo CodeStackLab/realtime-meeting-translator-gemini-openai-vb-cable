@@ -18,7 +18,9 @@ const REALTIME_MODELS = {
     },
   ],
   openai: [
-    { value: 'gpt-realtime', label: 'GPT Realtime - recommended speech-to-speech' },
+    { value: 'gpt-realtime-2', label: 'GPT Realtime 2 - most capable realtime voice' },
+    { value: 'gpt-realtime-1.5', label: 'GPT Realtime 1.5 - best audio in/out voice' },
+    { value: 'gpt-realtime', label: 'GPT Realtime - stable production voice' },
     { value: 'gpt-realtime-mini', label: 'GPT Realtime mini - lower cost' },
     { value: 'gpt-4o-realtime-preview', label: 'GPT-4o Realtime preview - legacy' },
     { value: 'gpt-4o-mini-realtime-preview', label: 'GPT-4o mini Realtime preview - legacy' },
@@ -50,6 +52,7 @@ let selectedModel = REALTIME_MODELS.gemini[0].value;
 let geminiApiKey = '';
 let openaiApiKey = '';
 let selectedVoice = 'Puck';
+let buyerVoiceStyle = 'auto';
 let buyerLang = 'English';
 let myMicDeviceId = '';
 let buyerMicDeviceId = '';
@@ -64,7 +67,6 @@ let myLiveSession = null;
 let buyerLiveSession = null;
 let running = false;
 let starting = false;
-let history = [];
 let currentMy = { original: '', translated: '' };
 let currentBuyer = { original: '', translated: '' };
 let myOriginalCaption = '';
@@ -94,7 +96,6 @@ const myOrigMeta = $('myOrigMeta');
 const myTransMeta = $('myTransMeta');
 const buyerOrigMeta = $('buyerOrigMeta');
 const buyerTransMeta = $('buyerTransMeta');
-const conversationList = $('conversationList');
 const toast = $('toast');
 const errorPanel = $('errorPanel');
 const errorMessage = $('errorMessage');
@@ -108,7 +109,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   populateVoices();
   await loadSettings();
   await populateDevices();
-  renderHistory();
   setStatus('idle', getActiveApiKey() ? 'Ready. Press Start Live Translation.' : 'Add API key in Settings.');
 });
 
@@ -133,10 +133,6 @@ function setupEvents() {
     e.preventDefault();
     window.electronAPI.openExternal({ type: 'url', url: 'https://platform.openai.com/api-keys' });
   });
-  $('clearHistoryBtn').addEventListener('click', () => {
-    history = [];
-    renderHistory();
-  });
   $('copyErrorBtn').addEventListener('click', copyLatestError);
   $('dismissErrorBtn').addEventListener('click', () => {
     errorPanel.hidden = true;
@@ -156,6 +152,7 @@ async function loadSettings() {
   geminiApiKey = cfg.gemini_api_key || localStorage.getItem('gemini_api_key') || '';
   openaiApiKey = cfg.openai_api_key || localStorage.getItem('openai_api_key') || '';
   selectedVoice = cfg.voice || cfg.my_voice_gemini || localStorage.getItem('voice') || (provider === 'openai' ? 'marin' : 'Puck');
+  buyerVoiceStyle = cfg.buyer_voice_style || localStorage.getItem('buyer_voice_style') || 'auto';
   buyerLang = cfg.buyer_lang || localStorage.getItem('buyer_lang') || 'English';
   myMicDeviceId = cfg.my_mic_device || localStorage.getItem('my_mic_device') || '';
   buyerMicDeviceId = cfg.buyer_mic_device || localStorage.getItem('buyer_mic_device') || '';
@@ -174,6 +171,7 @@ async function loadSettings() {
   $('modelSelect').value = selectedModel;
   populateVoices();
   $('voiceSelect').value = selectedVoice;
+  $('buyerVoiceStyleSelect').value = buyerVoiceStyle;
   $('geminiKeyInput').value = geminiApiKey;
   $('openaiKeyInput').value = openaiApiKey;
   $('buyerLangSelect').value = buyerLang;
@@ -188,6 +186,7 @@ function saveSettings() {
   geminiApiKey = $('geminiKeyInput').value.trim();
   openaiApiKey = $('openaiKeyInput').value.trim();
   selectedVoice = $('voiceSelect').value;
+  buyerVoiceStyle = $('buyerVoiceStyleSelect').value;
   buyerLang = $('buyerLangSelect').value;
   myMicDeviceId = $('myMicSelect').value;
   buyerMicDeviceId = $('buyerMicSelect').value;
@@ -208,6 +207,7 @@ function saveSettings() {
   localStorage.setItem('gemini_api_key', geminiApiKey);
   localStorage.setItem('openai_api_key', openaiApiKey);
   localStorage.setItem('voice', selectedVoice);
+  localStorage.setItem('buyer_voice_style', buyerVoiceStyle);
   localStorage.setItem('buyer_lang', buyerLang);
   localStorage.setItem('my_mic_device', myMicDeviceId);
   localStorage.setItem('buyer_mic_device', buyerMicDeviceId);
@@ -223,6 +223,7 @@ function saveSettings() {
     gemini_api_key: geminiApiKey,
     openai_api_key: openaiApiKey,
     voice: selectedVoice,
+    buyer_voice_style: buyerVoiceStyle,
     buyer_lang: buyerLang,
     monitor_my_translation: monitorMyTranslation,
     buyer_capture_enabled: buyerCaptureEnabled,
@@ -268,6 +269,44 @@ function populateVoices() {
   });
   if (!voices.some(([value]) => value === selectedVoice)) selectedVoice = voices[0][0];
   select.value = selectedVoice;
+}
+
+function getBuyerHindiVoice() {
+  if (provider === 'openai') {
+    if (buyerVoiceStyle === 'male') return 'cedar';
+    if (buyerVoiceStyle === 'female') return 'marin';
+    return 'marin';
+  }
+  if (buyerVoiceStyle === 'male') return 'Puck';
+  if (buyerVoiceStyle === 'female') return 'Aoede';
+  return 'Aoede';
+}
+
+function buildMyTranslationPrompt() {
+  return [
+    'You are a realtime Hindi/Hinglish to English speech translation engine for a live meeting.',
+    'Your only job is translation. Do not answer questions. Do not continue the conversation. Do not add advice.',
+    'If the speaker says "aap kaise ho", say only "How are you?"',
+    'Translate fragmented speech into one clean, meaningful English sentence when possible.',
+    'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',
+    'Use simple professional English that sounds natural when spoken to a buyer.',
+    'Never output markdown, analysis, labels, notes, "Awaiting input", "I understand", or internal reasoning.',
+    'Output only the English translation.',
+  ].join(' ');
+}
+
+function buildBuyerTranslationPrompt() {
+  return [
+    `You are a realtime ${buyerLang} to Hindi/Hinglish speech translation engine for a live meeting.`,
+    `The buyer speaks ${buyerLang}. Translate only what the buyer says.`,
+    'Never answer the buyer. Never reply to questions. Never add advice or explanations.',
+    'If the buyer says "How are you?", say only "Aap kaise ho?" Never say "Main theek hoon".',
+    'Translate fragmented speech into one clean, meaningful Hindi/Hinglish sentence when possible.',
+    'Use simple professional Hindi/Hinglish that an Indian caller can understand easily.',
+    'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',
+    'Never output markdown, analysis, labels, notes, "Awaiting input", "I understand", or internal reasoning.',
+    'Output only the Hindi translation.',
+  ].join(' ');
 }
 
 async function populateDevices() {
@@ -415,19 +454,10 @@ async function startLiveTranslation() {
       outputMode: 'audio',
       playAudio: true,
       outputDeviceId: translatedOutputDeviceId,
-      systemPrompt: [
-        'You are an ultra-low-latency Hindi to English translation engine for a Zoom business call.',
-        'Translate the speaker only. Never answer questions, never continue the conversation, never add advice.',
-        'If the user says "aap kaise ho", output only "How are you?", not an answer.',
-        'The user may speak in fragments, Hinglish, pauses, or informal Hindi.',
-        'Translate as soon as the meaning is clear; do not wait for long paragraphs.',
-        'Preserve the full sentence meaning, names, numbers, prices, dates, and commitments.',
-        'Speak in natural, simple English when audio is enabled.',
-        'Keep output short, direct, understandable, and immediately speakable. Output only the English translation.',
-      ].join(' '),
+      systemPrompt: buildMyTranslationPrompt(),
       onInputTranscript: (text, append) => updateTranscript('myOriginal', text, append),
       onTranscript: (text, append) => updateTranscript('myTranslation', text, append),
-      onTurnComplete: () => addHistoryFromCurrent('me'),
+      onTurnComplete: () => {},
       onStatus: (state, msg) => setStatus(state, msg),
       onClose: () => {
         if (running) {
@@ -446,30 +476,14 @@ async function startLiveTranslation() {
         provider,
         apiKey,
         model: selectedModel,
-        voice: provider === 'openai' ? selectedVoice : 'Aoede',
+        voice: getBuyerHindiVoice(),
         outputMode: playBuyerHindiVoice ? 'audio' : 'text',
         playAudio: playBuyerHindiVoice,
         outputDeviceId: buyerVoiceOutputDeviceId,
-        systemPrompt: playBuyerHindiVoice
-          ? [
-              `You are a real-time ${buyerLang} to Hindi translation engine for a Zoom business call.`,
-              `The buyer speaks ${buyerLang}. Translate only what the buyer says into natural Hindi.`,
-              'Never answer the buyer. Never reply to questions. Never add explanations or suggestions.',
-              'If the buyer says "How are you?", output only "Aap kaise ho?", not "Main theek hoon".',
-              'Use simple, clear Hindi/Hinglish that an Indian business caller will understand.',
-              'Keep names, numbers, prices, dates, and commitments exact. Output only the Hindi translation.',
-            ].join(' ')
-          : [
-              `You are a real-time ${buyerLang} to Hindi translation engine for a Zoom business call.`,
-              `The buyer speaks ${buyerLang}. Translate only what the buyer says into natural Hindi.`,
-              'Never answer the buyer. Never reply to questions. Never add explanations or suggestions.',
-              'If the buyer says "How are you?", output only "Aap kaise ho?", not "Main theek hoon".',
-              'Do not produce audio. The user only wants to see Hindi captions here.',
-              'Keep names, numbers, prices, dates, and commitments exact. Output only the Hindi translation text.',
-            ].join(' '),
+        systemPrompt: buildBuyerTranslationPrompt(),
         onInputTranscript: (text, append) => updateTranscript('buyerOriginal', text, append),
         onTranscript: (text, append) => updateTranscript('buyerTranslation', text, append),
-        onTurnComplete: () => addHistoryFromCurrent('buyer'),
+        onTurnComplete: () => {},
         onStatus: (state, msg) => setStatus(state, msg),
         onClose: () => {
           if (running) {
@@ -585,31 +599,51 @@ function resetTranscriptState() {
 
 function updateTranscript(kind, text, append) {
   const now = new Date().toLocaleTimeString();
+  const cleanText = sanitizeCaptionChunk(text);
+  if (!cleanText) return;
   if (kind === 'myOriginal') {
-    myOriginalCaption = mergeCaption(myOriginalCaption, text, append);
+    myOriginalCaption = mergeCaption(myOriginalCaption, cleanText, append);
     currentMy.original = myOriginalCaption;
     setTranscript(myOrigText, myOriginalCaption);
     myOrigMeta.textContent = now;
     flashBox(myOrigText);
   } else if (kind === 'myTranslation') {
-    myTranslationCaption = mergeCaption(myTranslationCaption, text, append);
+    myTranslationCaption = mergeCaption(myTranslationCaption, cleanText, append);
     currentMy.translated = myTranslationCaption;
     setTranscript(myTransText, myTranslationCaption);
     myTransMeta.textContent = now;
     flashBox(myTransText);
   } else if (kind === 'buyerOriginal') {
-    buyerOriginalCaption = mergeCaption(buyerOriginalCaption, text, append);
+    buyerOriginalCaption = mergeCaption(buyerOriginalCaption, cleanText, append);
     currentBuyer.original = buyerOriginalCaption;
     setTranscript(buyerOrigText, buyerOriginalCaption);
     buyerOrigMeta.textContent = now;
     flashBox(buyerOrigText);
   } else if (kind === 'buyerTranslation') {
-    buyerTranslationCaption = mergeCaption(buyerTranslationCaption, text, append);
+    buyerTranslationCaption = mergeCaption(buyerTranslationCaption, cleanText, append);
     currentBuyer.translated = buyerTranslationCaption;
     setTranscript(buyerTransText, buyerTranslationCaption);
     buyerTransMeta.textContent = now;
     flashBox(buyerTransText);
   }
+}
+
+function sanitizeCaptionChunk(value) {
+  let text = String(value || '').trim();
+  if (!text) return '';
+  if (/\*\*(Awaiting|Interpreting|Analysis|Translation|Reasoning|Note)[^*]*\*\*/i.test(text)) return '';
+  if (/^(Awaiting Further Input|Interpreting Fragmented Input|I understand|My analysis|The latest input)/i.test(text)) return '';
+  text = text
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/<noise>/gi, '')
+    .replace(/\bAwaiting Further Input\b/gi, '')
+    .replace(/\bInterpreting Fragmented Input\b/gi, '')
+    .replace(/\bI understand\b[^.?!]*[.?!]?/gi, '')
+    .replace(/\bMy role is translation\b[^.?!]*[.?!]?/gi, '')
+    .replace(/\bMy analysis[^.?!]*[.?!]?/gi, '')
+    .trim();
+  if (/^(therefore|however|because),?\s/i.test(text)) return '';
+  return text;
 }
 
 function mergeCaption(existing, incoming, append) {
@@ -635,51 +669,6 @@ function cleanCaptionText(text) {
     .replace(/([(\["'])\s+/g, '$1')
     .replace(/\s{2,}/g, ' ')
     .trim();
-}
-
-function addHistoryFromCurrent(side) {
-  const source = side === 'me' ? currentMy : currentBuyer;
-  const original = source.original.trim();
-  const translated = source.translated.trim();
-  if (!original && !translated) return;
-  const last = history[0];
-  if (last && last.side === side && last.original === original && last.translated === translated) return;
-
-  history.unshift({
-    side,
-    original,
-    translated,
-    time: new Date().toLocaleTimeString(),
-  });
-  history = history.slice(0, 5);
-  renderHistory();
-}
-
-function renderHistory() {
-  conversationList.innerHTML = '';
-  if (history.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'empty-state';
-    empty.textContent = 'Start a conversation to see the latest 5 translations.';
-    conversationList.appendChild(empty);
-    return;
-  }
-
-  history.forEach((item, index) => {
-    const row = document.createElement('div');
-    row.className = 'history-item';
-    const top = document.createElement('div');
-    top.className = 'history-top';
-    top.innerHTML = `<span>${index + 1}. ${item.side === 'me' ? 'You -> Buyer' : 'Buyer -> You'}</span><span>${item.time}</span>`;
-    const original = document.createElement('div');
-    original.className = 'history-original';
-    original.textContent = item.original || 'Original speech pending';
-    const translated = document.createElement('div');
-    translated.className = 'history-translation';
-    translated.textContent = item.translated || 'Translation pending';
-    row.append(top, original, translated);
-    conversationList.appendChild(row);
-  });
 }
 
 function setTranscript(element, text) {
