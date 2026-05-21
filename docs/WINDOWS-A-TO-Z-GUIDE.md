@@ -129,11 +129,11 @@ In Google Meet audio settings:
 
 1. Start the translator app.
 2. Press `Start Live Translation`.
-3. Speak Hindi into your real microphone.
-4. Buyer should hear English voice in the meeting.
-5. Buyer speaks English.
-6. You should see Hindi captions on the buyer panel.
-7. If enabled, you should hear buyer's translated Hindi voice in your headphones.
+3. Fast Streaming Realtime mode starts on both sides.
+4. Speak Hindi into your real microphone.
+5. Buyer should hear English voice in the meeting as quickly as possible.
+6. Buyer speaks English.
+7. You should see Hindi captions on the buyer panel and hear translated Hindi voice in your headphones.
 
 ## 12. Optional: Hear Buyer Original English Too
 

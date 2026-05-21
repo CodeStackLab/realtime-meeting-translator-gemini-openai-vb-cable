@@ -628,7 +628,7 @@ function updateStartButton() {
   startBtn.disabled = starting;
   startBtn.classList.toggle('stop', running || starting);
   startBtnText.textContent = starting ? 'Starting...' : (running ? 'Stop Translation' : 'Start Live Translation');
-  startHint.textContent = running ? 'Both channels are live' : 'Starts both directions together';
+  startHint.textContent = running ? 'Fast streaming active on both sides' : 'Fast Streaming Realtime mode';
   myMicStatus.textContent = running || starting ? 'Hindi mic streaming' : 'Mic off';
   buyerMicStatus.textContent = running || starting ? 'Buyer audio streaming' : 'Listening off';
 }

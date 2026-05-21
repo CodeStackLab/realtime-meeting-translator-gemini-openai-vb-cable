@@ -8,6 +8,7 @@ The app uses VB-Cable A+B virtual audio cables to route meeting audio into a rea
 
 - Your Hindi speech is translated to English voice for the buyer.
 - Buyer English speech is translated to Hindi captions and optional Hindi voice for you.
+- Fast Streaming Realtime mode is the default for both sides, so speech starts translating while the meeting is live.
 - Works with Zoom, Microsoft Teams, Google Meet, and similar meeting apps through normal audio device routing.
 - Supports Google Gemini Live and OpenAI Realtime providers.
 - Uses CABLE-A for incoming meeting audio and CABLE-B for outgoing translated voice.

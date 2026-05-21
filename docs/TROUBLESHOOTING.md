@@ -39,6 +39,17 @@ The app prompt is configured for translation only. It should not answer question
 
 The app filters common internal-analysis text and removes the conversation history panel. If you still see labels such as `Awaiting Further Input`, restart the app and check that you are running the newest build.
 
+## Realtime Feels Slow
+
+Use the default Fast Streaming Realtime mode:
+
+- Gemini model: `gemini-3.1-flash-live-preview`
+- Good internet connection
+- Headphones instead of speakers
+- Speak in short, clear phrases
+- Keep Zoom/Teams/Meet speaker set to `CABLE-A Input`
+- Keep meeting microphone set to `CABLE-B Output`
+
 ## No Audio Sent To Buyer
 
 Check:
