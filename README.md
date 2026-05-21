@@ -1,90 +1,129 @@
 # All Meeting Realtime Voice Translator
 
-Real-time speech-to-speech meeting translator for Zoom, Microsoft Teams, Google Meet, and other meeting apps that can select microphone and speaker devices.
+Real-time speech-to-speech meeting translator for Zoom, Microsoft Teams, Google Meet, and other meeting software that lets you choose microphone and speaker devices.
 
-The app uses virtual audio cables to route meeting audio into a realtime AI translation session and route translated voice back into the meeting.
+The app uses VB-Cable A+B virtual audio cables to route meeting audio into a realtime AI translation session and route translated voice back into the meeting.
 
 ## What It Does
 
 - Your Hindi speech is translated to English voice for the buyer.
 - Buyer English speech is translated to Hindi captions and optional Hindi voice for you.
-- Works with Zoom, Microsoft Teams, Google Meet, and similar meeting software through microphone/speaker routing.
+- Works with Zoom, Microsoft Teams, Google Meet, and similar meeting apps through normal audio device routing.
 - Supports Google Gemini Live and OpenAI Realtime providers.
 - Uses CABLE-A for incoming meeting audio and CABLE-B for outgoing translated voice.
 
-## Repository Name
+## Buy / Donate / Download VB-Cable A+B
 
-Suggested public repository name:
+Official VB-Audio shop link:
 
-`all-meeting-realtime-voice-translator`
+[VB-Cable A+B for Windows](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html)
 
-## Safety Notice
+VB-Cable A+B is used only for audio routing. This project is not sponsored by VB-Audio and is not an official VB-Audio product. Buy/download it only from the official VB-Audio website.
 
-Do not commit your real API keys. The local `config.json` file is ignored by git. Use `config.example.json` as a template.
+The VB-Audio shop uses a contribution/donation selector. Select the contribution amount shown on the official page or checkout. If you see a `$5` donation/contribution option, you can choose it and complete checkout to get the download link. The amount can change by selection, account, region, or shop updates.
 
-If you accidentally expose an API key, rotate it immediately in the provider dashboard.
+After checkout, VB-Audio provides a download link with two driver packages:
 
-## Quick Start
+- `VBCABLE_A_Driver_Pack...zip`
+- `VBCABLE_B_Driver_Pack...zip`
 
-1. Install Node.js.
-2. Install VB-Audio Virtual Cable A+B, or equivalent virtual audio cables.
-3. Install dependencies:
+## Quick Windows Setup
+
+1. Buy/donate/download VB-Cable A+B from the official link above.
+2. Extract both ZIP files:
+   - `VBCABLE_A_Driver_Pack...zip`
+   - `VBCABLE_B_Driver_Pack...zip`
+3. For Cable A, right-click the setup file and choose `Run as administrator`.
+4. Install Cable A.
+5. For Cable B, right-click the setup file and choose `Run as administrator`.
+6. Install Cable B.
+7. Restart Windows. This reboot is required.
+8. Open Windows sound devices and confirm these devices exist:
+   - Playback: `CABLE-A Input`
+   - Recording: `CABLE-A Output`
+   - Playback: `CABLE-B Input`
+   - Recording: `CABLE-B Output`
+
+## App Quick Start
 
 ```bash
 npm install
 ```
 
-4. Copy sample config:
-
 ```bash
 copy config.example.json config.json
 ```
 
-5. Add your Gemini API key or OpenAI API key in app Settings.
-6. Start the app:
-
 ```bash
 npm start
 ```
 
-## Recommended Zoom / Meeting App Audio Route
+Add your Gemini API key or OpenAI API key in Settings. The app code is free to use, but Gemini/OpenAI usage depends on your provider account, model access, quota, and pricing.
 
-In Zoom, Teams, or Google Meet:
+## AI Provider / Model
 
-- Microphone: `CABLE-B Output`
-- Speaker: `CABLE-A Input`
+In Settings:
 
-In this app:
+- Provider: choose `Google Gemini Live` or `OpenAI Realtime`.
+- Model: choose the best realtime speech/audio model available in your account.
+- API key: paste your own Gemini or OpenAI API key.
+- Voice: select the voice you prefer.
 
-- Your microphone: your real headset microphone, for example `BH900 PRO`
-- Buyer's audio source: `CABLE-A Output`
-- Send translated English voice to: `CABLE-B Input`
-- Play buyer Hindi voice to: your headphones, for example `BH900 PRO`
-- Enable buyer Hindi captions: ON
-- Also play buyer translated Hindi voice: ON
+Recommended:
+
+- Use Gemini native audio models for Gemini speech-to-speech.
+- Use OpenAI Realtime models for OpenAI speech-to-speech.
+- If one provider/model is slow or unavailable, try the other provider/model.
+
+## Meeting App Audio Settings
+
+Use these settings in Zoom, Microsoft Teams, Google Meet, or any meeting app:
+
+| Meeting app setting | Select this device |
+| --- | --- |
+| Microphone | `CABLE-B Output (VB-Audio Virtual Cable B)` |
+| Speaker | `CABLE-A Input (VB-Audio Virtual Cable A)` |
+
+## Translator App Settings
+
+| Translator app setting | Select this device |
+| --- | --- |
+| Your microphone | Your real microphone/headset, for example `BH900 PRO` |
+| Buyer's audio source | `CABLE-A Output (VB-Audio Virtual Cable A)` |
+| Send translated English voice to | `CABLE-B Input (VB-Audio Virtual Cable B)` |
+| Play buyer Hindi voice to | Your headphones, for example `BH900 PRO` |
+| Buyer Hindi captions | ON |
+| Buyer translated Hindi voice | ON if you want to hear buyer in Hindi |
+
+## How The Audio Flows
+
+```text
+You speak Hindi
+  -> app captures your real microphone
+  -> app translates Hindi to English speech
+  -> app sends English voice to CABLE-B Input
+  -> meeting app microphone CABLE-B Output sends English to buyer
+
+Buyer speaks English
+  -> meeting app speaker sends buyer audio to CABLE-A Input
+  -> app captures CABLE-A Output
+  -> app translates English to Hindi caption/voice
+  -> app plays Hindi voice to your headphones
+```
 
 ## Documentation
 
-- [Full setup guide](docs/SETUP.md)
+- [Full Windows setup guide](docs/WINDOWS-A-TO-Z-GUIDE.md)
 - [Cable A+B routing guide](docs/AUDIO-ROUTING.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 
-## Development
-
-```bash
-npm start
-```
-
-```bash
-npm run dev
-```
-
 ## Important Notes
 
-- This is not an official Zoom, Microsoft Teams, or Google Meet integration.
-- It works by normal audio device selection and virtual audio routing.
-- Realtime translation has a small delay, usually around 1-3 seconds depending on network, model, and voice activity detection.
-- Use headphones to avoid echo and prevent buyer audio from leaking into your own microphone.
+- This is not an official Zoom, Microsoft Teams, Google Meet, Gemini, OpenAI, or VB-Audio integration.
+- This project is not sponsored by VB-Audio. VB-Cable A+B is only recommended because it is useful for audio routing.
+- Do not commit your real API keys. Local `config.json` is ignored by git.
+- Use headphones to avoid echo.
+- Realtime speech-to-speech translation usually has a small delay, often around 1-3 seconds.
 
 ## License
 

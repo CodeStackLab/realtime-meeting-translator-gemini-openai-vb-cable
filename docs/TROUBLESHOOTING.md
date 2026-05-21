@@ -4,58 +4,61 @@
 
 Check:
 
-- App `Buyer audio source` is `CABLE-A Output`.
-- Meeting app speaker is `CABLE-A Input`.
+- Meeting speaker is `CABLE-A Input`.
+- App buyer audio source is `CABLE-A Output`.
 - Buyer captions checkbox is ON.
-- Use the latest app window after code changes.
+- You restarted Windows after installing VB-Cable A+B.
 
-## Buyer Audio Appears On The Left Panel
+## Buyer Voice Goes To Left Panel
 
-This usually means buyer audio is leaking into your real microphone.
+This means buyer audio is leaking into your real microphone.
 
 Fix:
 
-- Use headphones.
-- Do not play meeting audio on laptop speakers.
-- Meeting app speaker should be CABLE-A Input, not real speakers.
-- App `Your microphone` should be your real headset mic only.
+- Wear headphones.
+- Keep laptop speakers muted.
+- Meeting speaker must be `CABLE-A Input`.
+- App `Your microphone` must be your real headset mic.
 
-## Buyer Says "How Are You" And App Answers Instead Of Translating
-
-The prompts are designed to translate only, not answer. If this happens:
-
-- Restart the app.
-- Confirm you are using the newest build.
-- Check copied error/log details.
+## Buyer Says "How Are You" And App Answers
 
 Correct behavior:
 
-- Buyer: `How are you?`
-- Hindi output: `Aap kaise ho?`
+- Buyer says: `How are you?`
+- Hindi translation: `Aap kaise ho?`
 
-Incorrect behavior:
+Wrong behavior:
 
 - `Main theek hoon`
 
-## Error Code 1007
+If wrong behavior appears, restart the app and make sure you are using the latest code.
 
-This usually means the realtime API rejected a setup or payload message.
+## No Audio Sent To Buyer
+
+Check:
+
+- App translated output is `CABLE-B Input`.
+- Meeting microphone is `CABLE-B Output`.
+- Start Live Translation is active.
+- API key is valid.
+- Provider/model is available for your account. Try Gemini Live or OpenAI Realtime if one model does not work.
+
+## VB-Cable A+B Download
+
+Use the official VB-Audio shop:
+
+[https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html)
+
+This project is not sponsored by VB-Audio. If the official shop shows a `$5` donation/contribution option, select it there and download from your VB-Audio account/download page after checkout.
+
+## Error Code 1007
 
 Use the in-app error panel:
 
 1. Wait for the error panel.
 2. Click `Copy error`.
-3. Share the copied error ID and log tail.
-
-## No Audio In Meeting
-
-Check:
-
-- App translated output is CABLE-B Input.
-- Meeting app microphone is CABLE-B Output.
-- App has started live translation.
-- API key is valid.
+3. Share the copied error ID and recent log.
 
 ## API Key Safety
 
-The app stores local keys in `config.json`. This file is ignored by git. Never upload it publicly.
+Never upload `config.json`. It is ignored by git.

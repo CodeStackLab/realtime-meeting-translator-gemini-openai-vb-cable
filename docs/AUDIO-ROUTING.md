@@ -1,52 +1,42 @@
 # Cable A+B Audio Routing Guide
 
-The app uses two virtual cables to separate incoming and outgoing audio.
+The app uses two virtual audio cables to avoid echo and keep meeting audio separated.
+
+VB-Cable A+B is an external VB-Audio product used for routing only. This repository is not sponsored by VB-Audio.
 
 ## Cable Roles
 
 | Cable | Purpose | Meeting app setting | App setting |
 | --- | --- | --- | --- |
-| CABLE-A | Incoming buyer audio | Speaker = CABLE-A Input | Buyer source = CABLE-A Output |
-| CABLE-B | Outgoing translated voice | Microphone = CABLE-B Output | English output = CABLE-B Input |
+| CABLE-A | Incoming buyer audio | Speaker = `CABLE-A Input` | Buyer source = `CABLE-A Output` |
+| CABLE-B | Outgoing translated voice | Microphone = `CABLE-B Output` | English output = `CABLE-B Input` |
 
 ## Why Two Cables Are Needed
 
-Using one cable can create echo loops. Two cables keep buyer audio separate from translated output:
+One cable can create feedback loops. Two cables keep directions separate:
 
-- Buyer voice goes into CABLE-A.
-- App listens to CABLE-A Output.
-- App sends translated English to CABLE-B Input.
-- Meeting app receives translated English from CABLE-B Output.
+- Buyer voice comes from the meeting into CABLE-A.
+- The app listens to CABLE-A Output.
+- Your translated English goes into CABLE-B Input.
+- The meeting app sends CABLE-B Output as microphone audio.
 
-## Recommended Two-Way Mode
+## Recommended App Route
 
-Use this when you speak Hindi and the buyer speaks English:
+- Your microphone: real headset microphone
+- Buyer audio source: `CABLE-A Output`
+- Send translated English voice to: `CABLE-B Input`
+- Play buyer Hindi voice to: real headphones
 
-- App `Your microphone`: real headset mic
-- App `Buyer audio source`: CABLE-A Output
-- App `Send translated English voice to`: CABLE-B Input
-- App `Play buyer Hindi voice to`: headset speakers
-- Meeting app `Microphone`: CABLE-B Output
-- Meeting app `Speaker`: CABLE-A Input
+## Recommended Meeting Route
 
-## Hearing Original Buyer English
+Works the same idea in Zoom, Microsoft Teams, and Google Meet:
 
-If you also want to hear the buyer's original English voice:
-
-1. Open Windows Sound settings.
-2. Open More sound settings.
-3. Go to Recording.
-4. Select `CABLE-A Output`.
-5. Open Properties.
-6. Go to Listen.
-7. Enable `Listen to this device`.
-8. Playback through your headphones.
-
-If you only want translated Hindi voice, keep this off.
+- Meeting microphone: `CABLE-B Output`
+- Meeting speaker: `CABLE-A Input`
 
 ## Avoiding Echo
 
 - Wear headphones.
-- Keep laptop speakers muted.
-- Do not select your real mic as the meeting app mic.
-- Meeting app mic should be CABLE-B Output.
+- Do not use laptop speakers during the meeting.
+- Do not choose your real microphone in the meeting app.
+- Do not choose your real speaker as the meeting speaker.
