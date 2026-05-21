@@ -17,16 +17,6 @@ function normalizeTranslationMode(mode) {
 }
 
 function getRealtimeInputConfig(mode = 'fast') {
-  if (normalizeTranslationMode(mode) === 'fast') {
-    return {
-      automaticActivityDetection: {
-        disabled: true,
-      },
-      turnCoverage: 'TURN_INCLUDES_ONLY_ACTIVITY',
-      activityHandling: 'NO_INTERRUPTION',
-    };
-  }
-
   const timings = {
     fast: { prefixPaddingMs: 60, silenceDurationMs: 100 },
     balanced: { prefixPaddingMs: 140, silenceDurationMs: 350 },
@@ -46,7 +36,7 @@ function getRealtimeInputConfig(mode = 'fast') {
 }
 
 function usesManualActivity(provider, mode) {
-  return provider === 'gemini' && normalizeTranslationMode(mode) === 'fast';
+  return false;
 }
 
 function getOpenAiTurnDetection(mode = 'fast') {
