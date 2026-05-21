@@ -75,7 +75,7 @@ Then select:
 
 - Provider: `Google Gemini Live` or `OpenAI Realtime`
 - Model: the best realtime speech/audio model available in your account
-- Voice: your preferred output voice
+- Voice: start with `Puck` for a young Indian male-style English buyer voice; try `Fenrir`, `Orus`, or `Leda` for a different tone.
 - Buyer Hindi voice style: Auto, Male, or Female. Manual selection is most reliable because not every realtime provider exposes speaker-gender detection.
 
 Recommended models:

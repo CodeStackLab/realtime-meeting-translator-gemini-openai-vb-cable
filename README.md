@@ -73,7 +73,7 @@ In Settings:
 - Model: choose the best realtime speech/audio model available in your account.
 - Translation timing: use `Ultra Realtime Streaming` when you want translated voice to start while you are still speaking.
 - API key: paste your own Gemini or OpenAI API key.
-- Voice: select the voice you prefer.
+- Voice: for a young Indian male-style English buyer voice, start with `Puck`; try `Fenrir`, `Orus`, or `Leda` if you prefer a different tone.
 
 Recommended:
 
