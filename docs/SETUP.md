@@ -31,4 +31,4 @@ npm start
    - Buyer source: `CABLE-A Output`
    - Translated output: `CABLE-B Input`
    - Buyer Hindi voice output: your headphones
-   - Provider/model: Gemini Live or OpenAI Realtime, whichever works best for your API key
+   - Model: `gemini-2.5-flash-native-audio-preview-12-2025` or another Gemini Live model available for your API key

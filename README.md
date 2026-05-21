@@ -1,6 +1,6 @@
 # Realtime Meeting Translator
 
-Real-time speech-to-speech voice translation with captions for all meetings, including Zoom, Microsoft Teams, Google Meet, and other meeting software, using Gemini Live or OpenAI Realtime voice models with VB-Cable A+B audio routing.
+Real-time speech-to-speech voice translation with captions for all meetings, including Zoom, Microsoft Teams, Google Meet, and other meeting software, using Gemini Live voice models with VB-Cable A+B audio routing.
 
 The app uses VB-Cable A+B virtual audio cables to route meeting audio into a realtime AI translation session and route translated voice back into the meeting.
 
@@ -10,7 +10,7 @@ The app uses VB-Cable A+B virtual audio cables to route meeting audio into a rea
 - Buyer English speech is translated to Hindi captions and optional Hindi voice for you.
 - Fast Streaming Realtime mode is the default for both sides, so speech starts translating while the meeting is live.
 - Works with Zoom, Microsoft Teams, Google Meet, and similar meeting apps through normal audio device routing.
-- Supports Google Gemini Live and OpenAI Realtime providers.
+- Uses Google Gemini Live for realtime speech-to-speech translation.
 - Uses CABLE-A for incoming meeting audio and CABLE-B for outgoing translated voice.
 
 ## Buy / Donate / Download VB-Cable A+B
@@ -63,24 +63,22 @@ copy config.example.json config.json
 npm start
 ```
 
-Add your Gemini API key or OpenAI API key in Settings. The app code is free to use, but Gemini/OpenAI usage depends on your provider account, model access, quota, and pricing.
+Add your Gemini API key in Settings. The app code is free to use, but Gemini usage depends on your Google account, model access, quota, and pricing.
 
-## AI Provider / Model
+## AI Model
 
 In Settings:
 
-- Provider: choose `Google Gemini Live` or `OpenAI Realtime`.
-- Model: choose the best realtime speech/audio model available in your account.
+- Provider: Google Gemini Live.
+- Model: choose the best Gemini Live speech/audio model available in your account.
 - Translation timing: use `Ultra Realtime Streaming` when you want translated voice to start while you are still speaking.
-- API key: paste your own Gemini or OpenAI API key.
+- API key: paste your own Gemini API key.
 - Voice: for a young Indian male-style English buyer voice, start with `Puck`; try `Fenrir`, `Orus`, or `Leda` if you prefer a different tone.
 
 Recommended:
 
-- Cheapest OpenAI speech translation: `gpt-realtime-translate` at about `$0.034/min` on the official OpenAI pricing page.
-- Cheapest general OpenAI realtime voice model: `gpt-realtime-mini`. For best OpenAI speech-to-speech quality, switch to `gpt-realtime-2`.
-- For Gemini speech-to-speech in this app, start with `gemini-3.1-flash-live-preview`; use `gemini-2.5-flash-native-audio-preview-12-2025` as a stable fallback.
-- If one provider/model is slow, unavailable, or too costly, switch provider/model in Settings.
+- Best documented Gemini Live native-audio model: `gemini-2.5-flash-native-audio-preview-12-2025`.
+- Gemini Live supports low-latency realtime voice interactions and supported languages include Hindi India (`hi-IN`) and English India (`en-IN`).
 
 ## Meeting App Audio Settings
 
@@ -127,7 +125,7 @@ Buyer speaks English
 
 ## Important Notes
 
-- This is not an official Zoom, Microsoft Teams, Google Meet, Gemini, OpenAI, or VB-Audio integration.
+- This is not an official Zoom, Microsoft Teams, Google Meet, Gemini, or VB-Audio integration.
 - This project is not sponsored by VB-Audio. VB-Cable A+B is only recommended because it is useful for audio routing.
 - Do not commit your real API keys. Local `config.json` is ignored by git.
 - Use headphones to avoid echo.

@@ -5,8 +5,6 @@ class LiveSession {
     apiKey,
     model,
     voice,
-    inputLanguage = '',
-    transcriptionPrompt = '',
     translationMode = 'fast',
     outputMode,
     playAudio = true,
@@ -25,8 +23,6 @@ class LiveSession {
     this.apiKey = apiKey;
     this.model = model;
     this.voice = voice;
-    this.inputLanguage = inputLanguage;
-    this.transcriptionPrompt = transcriptionPrompt;
     this.translationMode = translationMode;
     this.outputMode = outputMode;
     this.playAudio = playAudio;
@@ -49,7 +45,7 @@ class LiveSession {
     this.pcmQueue = [];
     this.isPlaying = false;
     this.sampleRate = 24000;
-    this.inputSampleRate = provider === 'openai' ? 24000 : 16000;
+    this.inputSampleRate = 16000;
     this.silenceFrames = 0;
     this.lastTurnCompleteAt = 0;
     this.activeSourceNode = null;
@@ -63,7 +59,7 @@ class LiveSession {
   }
 
   async open(micStream) {
-    this.onStatus('busy', `Connecting to ${this.provider === 'openai' ? 'OpenAI' : 'Gemini'} Live...`);
+    this.onStatus('busy', 'Connecting to Gemini Live...');
     window.electronAPI.logEvent('renderer.live-session.open.start', {
       sessionId: this.sessionId,
       provider: this.provider,
@@ -80,8 +76,6 @@ class LiveSession {
       sessionId: this.sessionId,
       model: this.model,
       voice: this.voice,
-      inputLanguage: this.inputLanguage,
-      transcriptionPrompt: this.transcriptionPrompt,
       translationMode: this.translationMode,
       outputMode: this.outputMode,
       systemPrompt: this.systemPrompt,

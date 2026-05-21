@@ -7,7 +7,7 @@ const liveSessions = {};
 const logPath = path.join(__dirname, 'app-debug.log');
 let mainWindow;
 
-const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-live-preview';
+const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash-native-audio-preview-12-2025';
 const appIconPath = fs.existsSync(path.join(__dirname, 'assets', 'icon.ico'))
   ? path.join(__dirname, 'assets', 'icon.ico')
   : path.join(__dirname, 'assets', 'icon.svg');
@@ -35,20 +35,8 @@ function getRealtimeInputConfig(mode = 'fast') {
   };
 }
 
-function usesManualActivity(provider, mode) {
+function usesManualActivity(mode) {
   return false;
-}
-
-function getOpenAiTurnDetection(mode = 'fast') {
-  const timings = {
-    fast: { prefix_padding_ms: 60, silence_duration_ms: 100 },
-    balanced: { prefix_padding_ms: 140, silence_duration_ms: 350 },
-    accurate: { prefix_padding_ms: 220, silence_duration_ms: 800 },
-  };
-  return {
-    type: 'server_vad',
-    ...(timings[normalizeTranslationMode(mode)] || timings.balanced),
-  };
 }
 
 function makeErrorId(prefix = 'ZT') {
@@ -145,15 +133,13 @@ ipcMain.handle('read-debug-log-tail', (event, { lines = 120 } = {}) => {
 });
 
 ipcMain.handle('test-live-model', async (event, {
-  provider = 'gemini',
   apiKey,
   model,
   voice,
   translationMode = 'fast',
 }) => {
-  const selectedModel = model || (provider === 'openai'
-    ? 'gpt-realtime-2'
-    : DEFAULT_GEMINI_MODEL);
+  const provider = 'gemini';
+  const selectedModel = model || DEFAULT_GEMINI_MODEL;
   const errorId = makeErrorId('ZT-TEST');
 
   if (!apiKey) {
@@ -185,17 +171,8 @@ ipcMain.handle('test-live-model', async (event, {
     }, 15000);
 
     try {
-      const url = provider === 'openai'
-        ? `wss://api.openai.com/v1/realtime?model=${encodeURIComponent(selectedModel)}`
-        : `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
-
-      ws = provider === 'openai'
-        ? new WebSocket(url, {
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-            },
-          })
-        : new WebSocket(url);
+      const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
+      ws = new WebSocket(url);
     } catch (e) {
       finish({ success: false, error: e.message || 'Could not create model test connection.' });
       return;
@@ -203,30 +180,6 @@ ipcMain.handle('test-live-model', async (event, {
 
     ws.on('open', () => {
       try {
-        if (provider === 'openai') {
-          ws.send(JSON.stringify({
-            type: 'session.update',
-            session: {
-              type: 'realtime',
-              model: selectedModel,
-              instructions: 'Model access test. Do not answer.',
-              output_modalities: ['audio'],
-              audio: {
-                input: {
-                  format: { type: 'audio/pcm', rate: 24000 },
-                  turn_detection: getOpenAiTurnDetection(translationMode),
-                  transcription: { model: 'gpt-4o-mini-transcribe' },
-                },
-                output: {
-                  format: { type: 'audio/pcm', rate: 24000 },
-                  voice: voice || 'marin',
-                },
-              },
-            },
-          }));
-          return;
-        }
-
         ws.send(JSON.stringify({
           setup: {
             model: `models/${selectedModel}`,
@@ -255,11 +208,6 @@ ipcMain.handle('test-live-model', async (event, {
     ws.on('message', (rawData) => {
       try {
         const msg = JSON.parse(rawData.toString());
-        if (provider === 'openai') {
-          if (msg.type === 'session.updated') finish({ success: true });
-          if (msg.type === 'error') finish({ success: false, error: msg.error?.message || 'OpenAI model test failed.' });
-          return;
-        }
         if (msg.setupComplete) finish({ success: true });
         if (msg.error) finish({ success: false, error: msg.error.message || msg.error.status || 'Gemini model test failed.' });
       } catch {
@@ -302,7 +250,6 @@ ipcMain.handle('save-conversation', async (event, { format, data }) => {
 });
 
 ipcMain.handle('live-open', (event, {
-  provider = 'gemini',
   apiKey,
   sessionId,
   systemPrompt,
@@ -310,15 +257,12 @@ ipcMain.handle('live-open', (event, {
   model,
   outputMode = 'audio',
   translationMode = 'fast',
-  inputLanguage = '',
-  transcriptionPrompt = '',
 }) => {
   return new Promise((resolve) => {
     let ws;
     let openTimer;
-    let selectedModel = model || (provider === 'openai'
-      ? 'gpt-realtime'
-      : DEFAULT_GEMINI_MODEL);
+    const provider = 'gemini';
+    let selectedModel = model || DEFAULT_GEMINI_MODEL;
     let setupComplete = false;
     let settled = false;
 
@@ -331,17 +275,8 @@ ipcMain.handle('live-open', (event, {
     };
 
     try {
-      const url = provider === 'openai'
-        ? `wss://api.openai.com/v1/realtime?model=${encodeURIComponent(selectedModel)}`
-        : `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
-
-      ws = provider === 'openai'
-        ? new WebSocket(url, {
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-            },
-          })
-        : new WebSocket(url);
+      const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
+      ws = new WebSocket(url);
 
       logEvent('live-open.create', { sessionId, provider, selectedModel, outputMode, translationMode: normalizeTranslationMode(translationMode) });
 
@@ -349,7 +284,7 @@ ipcMain.handle('live-open', (event, {
         try { ws?.close(); } catch {}
         finish({
           success: false,
-          error: `${provider === 'openai' ? 'OpenAI' : 'Gemini'} Live connection timed out. Check API key, model access, and internet.`,
+          error: 'Gemini Live connection timed out. Check API key, model access, and internet.',
         });
       }, 15000);
     } catch (e) {
@@ -360,43 +295,13 @@ ipcMain.handle('live-open', (event, {
     liveSessions[sessionId] = {
       ws,
       provider,
-      manualActivity: usesManualActivity(provider, translationMode),
+      manualActivity: usesManualActivity(translationMode),
       activityOpen: false,
-      openAiPendingAudio: false,
-      openAiResponseActive: false,
     };
 
     ws.on('open', () => {
       try {
         logEvent('ws.open', { sessionId, provider, selectedModel, outputMode });
-        if (provider === 'openai') {
-          ws.send(JSON.stringify({
-            type: 'session.update',
-            session: {
-              type: 'realtime',
-              model: selectedModel,
-              instructions: systemPrompt,
-              output_modalities: outputMode === 'audio' ? ['audio'] : ['text'],
-              audio: {
-                input: {
-                  format: { type: 'audio/pcm', rate: 24000 },
-                  turn_detection: getOpenAiTurnDetection(translationMode),
-                  transcription: {
-                    model: 'gpt-4o-mini-transcribe',
-                    ...(inputLanguage ? { language: inputLanguage } : {}),
-                    ...(transcriptionPrompt ? { prompt: transcriptionPrompt } : {}),
-                  },
-                },
-                output: {
-                  format: { type: 'audio/pcm', rate: 24000 },
-                  voice: voice || 'marin',
-                },
-              },
-            },
-          }));
-          return;
-        }
-
         ws.send(JSON.stringify({
           setup: {
             model: `models/${selectedModel}`,
@@ -422,7 +327,7 @@ ipcMain.handle('live-open', (event, {
           provider,
           selectedModel,
           outputMode,
-          manualActivity: usesManualActivity(provider, translationMode),
+          manualActivity: usesManualActivity(translationMode),
         });
       } catch (e) {
         logEvent('ws.setup.error', { sessionId, provider, error: e.message });
@@ -433,70 +338,8 @@ ipcMain.handle('live-open', (event, {
     ws.on('message', (rawData) => {
       try {
         const msg = JSON.parse(rawData.toString());
-        const msgType = provider === 'openai'
-          ? msg.type
-          : (msg.setupComplete ? 'setupComplete' : msg.serverContent ? 'serverContent' : msg.error ? 'error' : Object.keys(msg)[0]);
+        const msgType = msg.setupComplete ? 'setupComplete' : msg.serverContent ? 'serverContent' : msg.error ? 'error' : Object.keys(msg)[0];
         logEvent('ws.message', { sessionId, provider, type: msgType });
-
-        if (provider === 'openai') {
-          if (msg.type === 'session.updated' && !setupComplete) {
-            setupComplete = true;
-            finish({ success: true });
-            return;
-          }
-          if (msg.type === 'response.created') {
-            const session = liveSessions[sessionId];
-            if (session) session.openAiResponseActive = true;
-          }
-          if ((msg.type === 'response.audio.delta' || msg.type === 'response.output_audio.delta') && msg.delta) {
-            logEvent('live-audio.out', { sessionId, bytesBase64: msg.delta.length });
-            mainWindow.webContents.send('live-audio', {
-              sessionId,
-              audioBase64: msg.delta,
-              mimeType: 'audio/pcm;rate=24000',
-            });
-          }
-          if ((msg.type === 'response.audio_transcript.delta'
-            || msg.type === 'response.output_audio_transcript.delta'
-            || msg.type === 'response.text.delta') && msg.delta) {
-            logEvent('live-transcript.out', { sessionId, chars: msg.delta.length, append: true });
-            mainWindow.webContents.send('live-transcript', { sessionId, text: msg.delta, append: true });
-          }
-          if (msg.type === 'conversation.item.input_audio_transcription.delta' && msg.delta) {
-            logEvent('live-input-transcript.delta', { sessionId, chars: msg.delta.length });
-            mainWindow.webContents.send('live-input-transcript', { sessionId, text: msg.delta, append: true });
-          }
-          if (msg.type === 'conversation.item.input_audio_transcription.completed' && msg.transcript) {
-            logEvent('live-input-transcript.out', { sessionId, chars: msg.transcript.length });
-            mainWindow.webContents.send('live-input-transcript', { sessionId, text: msg.transcript });
-          }
-          if (msg.type === 'response.done') {
-            const session = liveSessions[sessionId];
-            if (session) session.openAiResponseActive = false;
-            mainWindow.webContents.send('live-turn-complete', { sessionId });
-          }
-          if (msg.type === 'input_audio_buffer.committed') {
-            const session = liveSessions[sessionId];
-            if (session) session.openAiPendingAudio = false;
-          }
-          if (msg.type === 'error') {
-            const session = liveSessions[sessionId];
-            if (session) {
-              session.openAiResponseActive = false;
-              if (/buffer|audio/i.test(msg.error?.message || '')) session.openAiPendingAudio = false;
-            }
-            if (!setupComplete) finish({ success: false, error: msg.error?.message || 'OpenAI realtime error' });
-            mainWindow.webContents.send('live-error', {
-              sessionId,
-              error: msg.error?.message || 'OpenAI realtime error',
-            });
-          }
-          if (msg.type === 'input_audio_buffer.speech_started') {
-            logEvent('live-interrupted.in', { sessionId, provider: 'openai' });
-            mainWindow.webContents.send('live-interrupted', { sessionId });
-          }
-          return;
-        }
 
         if (msg.setupComplete && !setupComplete) {
           setupComplete = true;
@@ -606,24 +449,19 @@ ipcMain.handle('live-send-audio', (event, { sessionId, audioBase64 }) => {
     if (session.chunkCount <= 5 || session.chunkCount % 50 === 0) {
       logEvent('live-send-audio.chunk', { sessionId, provider: session.provider, chunkCount: session.chunkCount, bytesBase64: audioBase64?.length || 0 });
     }
-    if (session.provider === 'openai') {
-      ws.send(JSON.stringify({ type: 'input_audio_buffer.append', audio: audioBase64 }));
-      session.openAiPendingAudio = true;
-    } else {
-      if (session.manualActivity && !session.activityOpen) {
-        ws.send(JSON.stringify({ realtimeInput: { activityStart: {} } }));
-        session.activityOpen = true;
-        logEvent('live-activity-start', { sessionId });
-      }
-      ws.send(JSON.stringify({
-        realtimeInput: {
-          audio: {
-            mimeType: 'audio/pcm;rate=16000',
-            data: audioBase64,
-          },
-        },
-      }));
+    if (session.manualActivity && !session.activityOpen) {
+      ws.send(JSON.stringify({ realtimeInput: { activityStart: {} } }));
+      session.activityOpen = true;
+      logEvent('live-activity-start', { sessionId });
     }
+    ws.send(JSON.stringify({
+      realtimeInput: {
+        audio: {
+          mimeType: 'audio/pcm;rate=16000',
+          data: audioBase64,
+        },
+      },
+    }));
     return { success: true };
   } catch (e) {
     logEvent('live-send-audio.error', { sessionId, error: e.message });
@@ -636,16 +474,6 @@ ipcMain.handle('live-send-turn-complete', (event, { sessionId }) => {
   const ws = session?.ws;
   if (!ws || ws.readyState !== WebSocket.OPEN) return { success: false, error: 'No session' };
   try {
-    if (session.provider === 'openai') {
-      if (!session.openAiPendingAudio || session.openAiResponseActive) return { success: true };
-      ws.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
-      ws.send(JSON.stringify({ type: 'response.create' }));
-      session.openAiPendingAudio = false;
-      session.openAiLastCommitAt = Date.now();
-      logEvent('live-send-turn-complete.openai', { sessionId });
-      return { success: true };
-    }
-
     if (session.provider !== 'gemini') return { success: true };
 
     if (session.manualActivity) {

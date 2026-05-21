@@ -120,7 +120,7 @@
       <div class="settings-header">
         <div>
           <h2>Settings</h2>
-          <p>Choose a realtime speech provider, model, voice, and Zoom audio routes.</p>
+          <p>Choose a Gemini Live model, voice, and Zoom audio routes.</p>
         </div>
         <button class="close-btn" id="closeSettings">x</button>
       </div>
@@ -129,10 +129,7 @@
         <div class="settings-row two">
           <label>
             Provider
-            <select id="providerSelect">
-              <option value="gemini">Google Gemini Live</option>
-              <option value="openai">OpenAI Realtime</option>
-            </select>
+            <input value="Google Gemini Live" disabled />
           </label>
           <label>
             Live speech model
@@ -159,15 +156,10 @@
             Gemini API key
             <input type="password" id="geminiKeyInput" placeholder="AIza..." spellcheck="false" />
           </label>
-          <label>
-            OpenAI API key
-            <input type="password" id="openaiKeyInput" placeholder="sk-..." spellcheck="false" />
-          </label>
         </div>
 
         <div class="link-row">
           <a href="#" id="geminiKeyLink">Get Gemini key</a>
-          <a href="#" id="openaiKeyLink">OpenAI API keys</a>
           <button class="small-btn" id="testModelBtn">Test model access</button>
           <button class="small-btn" id="toggleKeys">Show keys</button>
         </div>

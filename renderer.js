@@ -1,12 +1,8 @@
 const REALTIME_MODELS = {
   gemini: [
     {
-      value: 'gemini-3.1-flash-live-preview',
-      label: 'Gemini 3.1 Flash Live preview - fastest/newest audio',
-    },
-    {
       value: 'gemini-2.5-flash-native-audio-preview-12-2025',
-      label: 'Gemini 2.5 Flash Native Audio 12-2025 - stable native audio',
+      label: 'Gemini 2.5 Flash Native Audio 12-2025 - best documented Live audio',
     },
     {
       value: 'gemini-2.5-flash-native-audio-latest',
@@ -16,15 +12,6 @@ const REALTIME_MODELS = {
       value: 'gemini-2.5-flash-native-audio-preview-09-2025',
       label: 'Gemini 2.5 Flash Native Audio 09-2025',
     },
-  ],
-  openai: [
-    { value: 'gpt-realtime-translate', label: 'GPT Realtime Translate - cheapest speech translation' },
-    { value: 'gpt-realtime-mini', label: 'GPT Realtime mini - cheapest general voice model' },
-    { value: 'gpt-realtime-2', label: 'GPT Realtime 2 - most capable realtime voice' },
-    { value: 'gpt-realtime-1.5', label: 'GPT Realtime 1.5 - best audio in/out voice' },
-    { value: 'gpt-realtime', label: 'GPT Realtime - stable production voice' },
-    { value: 'gpt-4o-realtime-preview', label: 'GPT-4o Realtime preview - legacy' },
-    { value: 'gpt-4o-mini-realtime-preview', label: 'GPT-4o mini Realtime preview - legacy' },
   ],
 };
 
@@ -64,16 +51,11 @@ const VOICES = {
     ['Vindemiatrix', 'Vindemiatrix - gentle style'],
     ['Sadachbia', 'Sadachbia - lively style'],
   ],
-  openai: [
-    ['marin', 'Marin - natural voice'],
-    ['cedar', 'Cedar - natural voice'],
-  ],
 };
 
-let provider = 'gemini';
+const provider = 'gemini';
 let selectedModel = REALTIME_MODELS.gemini[0].value;
 let geminiApiKey = '';
-let openaiApiKey = '';
 let selectedVoice = 'Puck';
 let buyerVoiceStyle = 'male';
 let translationMode = 'fast';
@@ -142,20 +124,11 @@ function setupEvents() {
   $('settingsOverlay').addEventListener('click', (e) => {
     if (e.target === $('settingsOverlay')) closeSettings();
   });
-  $('providerSelect').addEventListener('change', () => {
-    provider = $('providerSelect').value;
-    populateModels();
-    populateVoices();
-  });
   $('saveSettings').addEventListener('click', saveSettings);
   $('toggleKeys').addEventListener('click', toggleKeyVisibility);
   $('geminiKeyLink').addEventListener('click', (e) => {
     e.preventDefault();
     window.electronAPI.openExternal({ type: 'url', url: 'https://aistudio.google.com/app/apikey' });
-  });
-  $('openaiKeyLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    window.electronAPI.openExternal({ type: 'url', url: 'https://platform.openai.com/api-keys' });
   });
   $('testModelBtn').addEventListener('click', testSelectedModelAccess);
   $('copyErrorBtn').addEventListener('click', copyLatestError);
@@ -172,12 +145,10 @@ async function loadSettings() {
   let cfg = {};
   try { cfg = await window.electronAPI.readConfig(); } catch {}
 
-  provider = cfg.provider || localStorage.getItem('provider') || 'gemini';
-  selectedModel = cfg.model || localStorage.getItem('model') || REALTIME_MODELS[provider][0].value;
+  selectedModel = cfg.model || localStorage.getItem('model') || REALTIME_MODELS.gemini[0].value;
   geminiApiKey = cfg.gemini_api_key || localStorage.getItem('gemini_api_key') || '';
-  openaiApiKey = cfg.openai_api_key || localStorage.getItem('openai_api_key') || '';
-  selectedVoice = cfg.voice || cfg.my_voice_gemini || localStorage.getItem('voice') || (provider === 'openai' ? 'marin' : 'Puck');
-  if (FORCE_OUTGOING_MALE_VOICE) selectedVoice = provider === 'openai' ? 'cedar' : 'Puck';
+  selectedVoice = cfg.voice || cfg.my_voice_gemini || localStorage.getItem('voice') || 'Puck';
+  if (FORCE_OUTGOING_MALE_VOICE) selectedVoice = 'Puck';
   buyerVoiceStyle = cfg.buyer_voice_style || localStorage.getItem('buyer_voice_style') || 'male';
   translationMode = normalizeTranslationMode(cfg.translation_mode || localStorage.getItem('translation_mode') || 'fast');
   buyerLang = cfg.buyer_lang || localStorage.getItem('buyer_lang') || 'English';
@@ -193,7 +164,6 @@ async function loadSettings() {
     playBuyerHindiVoice = true;
   }
 
-  $('providerSelect').value = provider;
   populateModels();
   $('modelSelect').value = selectedModel;
   populateVoices();
@@ -201,7 +171,6 @@ async function loadSettings() {
   $('buyerVoiceStyleSelect').value = buyerVoiceStyle;
   $('translationModeSelect').value = translationMode;
   $('geminiKeyInput').value = geminiApiKey;
-  $('openaiKeyInput').value = openaiApiKey;
   $('buyerLangSelect').value = buyerLang;
   $('monitorMyTranslation').checked = monitorMyTranslation;
   $('buyerCaptureEnabled').checked = buyerCaptureEnabled;
@@ -209,14 +178,12 @@ async function loadSettings() {
 }
 
 function saveSettings() {
-  provider = $('providerSelect').value;
   selectedModel = $('modelSelect').value;
   geminiApiKey = $('geminiKeyInput').value.trim();
-  openaiApiKey = $('openaiKeyInput').value.trim();
   selectedVoice = $('voiceSelect').value;
   buyerVoiceStyle = $('buyerVoiceStyleSelect').value;
   if (FORCE_OUTGOING_MALE_VOICE) {
-    selectedVoice = provider === 'openai' ? 'cedar' : 'Puck';
+    selectedVoice = 'Puck';
     $('voiceSelect').value = selectedVoice;
   }
   translationMode = normalizeTranslationMode($('translationModeSelect').value);
@@ -235,10 +202,9 @@ function saveSettings() {
     $('playBuyerHindiVoice').checked = true;
   }
 
-  localStorage.setItem('provider', provider);
+  localStorage.setItem('provider', 'gemini');
   localStorage.setItem('model', selectedModel);
   localStorage.setItem('gemini_api_key', geminiApiKey);
-  localStorage.setItem('openai_api_key', openaiApiKey);
   localStorage.setItem('voice', selectedVoice);
   localStorage.setItem('buyer_voice_style', buyerVoiceStyle);
   localStorage.setItem('translation_mode', translationMode);
@@ -252,10 +218,9 @@ function saveSettings() {
   localStorage.setItem('play_buyer_hindi_voice', String(playBuyerHindiVoice));
 
   window.electronAPI.writeConfig({
-    provider,
+    provider: 'gemini',
     model: selectedModel,
     gemini_api_key: geminiApiKey,
-    openai_api_key: openaiApiKey,
     voice: selectedVoice,
     buyer_voice_style: buyerVoiceStyle,
     translation_mode: translationMode,
@@ -275,16 +240,14 @@ function saveSettings() {
 }
 
 async function testSelectedModelAccess() {
-  provider = $('providerSelect').value;
   selectedModel = $('modelSelect').value;
   geminiApiKey = $('geminiKeyInput').value.trim();
-  openaiApiKey = $('openaiKeyInput').value.trim();
   selectedVoice = $('voiceSelect').value;
   translationMode = normalizeTranslationMode($('translationModeSelect').value);
   const apiKey = getActiveApiKey();
 
   if (!apiKey) {
-    showToast(`Add ${provider === 'openai' ? 'OpenAI' : 'Gemini'} API key first.`, 'error');
+    showToast('Add Gemini API key first.', 'error');
     return;
   }
 
@@ -298,8 +261,6 @@ async function testSelectedModelAccess() {
       apiKey,
       model: selectedModel,
       voice: selectedVoice,
-      inputLanguage: 'hi',
-      transcriptionPrompt: getMyTranscriptionPrompt(),
       translationMode,
     });
     if (res.success) {
@@ -326,7 +287,7 @@ function closeSettings() {
 
 function populateModels() {
   const select = $('modelSelect');
-  const models = REALTIME_MODELS[provider] || REALTIME_MODELS.gemini;
+  const models = REALTIME_MODELS.gemini;
   select.innerHTML = '';
   models.forEach((model) => {
     const option = document.createElement('option');
@@ -340,7 +301,7 @@ function populateModels() {
 
 function populateVoices() {
   const select = $('voiceSelect');
-  const voices = VOICES[provider] || VOICES.gemini;
+  const voices = VOICES.gemini;
   select.innerHTML = '';
   voices.forEach(([value, label]) => {
     const option = document.createElement('option');
@@ -353,11 +314,6 @@ function populateVoices() {
 }
 
 function getBuyerHindiVoice() {
-  if (provider === 'openai') {
-    if (buyerVoiceStyle === 'male') return 'cedar';
-    if (buyerVoiceStyle === 'female') return 'marin';
-    return 'marin';
-  }
   if (buyerVoiceStyle === 'male') return 'Puck';
   if (buyerVoiceStyle === 'female') return 'Aoede';
   return 'Puck';
@@ -381,14 +337,6 @@ function getTimingInstruction() {
     return 'Timing mode: Accurate Sentence Mode. Wait for a complete sentence or clear natural pause, then output one polished sentence. A little delay is acceptable for clarity.';
   }
   return 'Timing mode: Balanced Sentence Mode. Wait for a short natural pause or complete phrase, then output one clean sentence quickly. Capture phrases such as "main ghar ja raha hun" as one unit before translating.';
-}
-
-function getMyTranscriptionPrompt() {
-  return 'Hindi and Hinglish meeting speech from an Indian male speaker. The speaker may mix Hindi and English business words. Prefer Hindi words in Devanagari script in the transcript. Do not output Urdu or Persian script.';
-}
-
-function getBuyerTranscriptionPrompt() {
-  return 'English meeting speech from a buyer. Keep names, numbers, prices, account details, and business terms accurate.';
 }
 
 function buildMyTranslationPrompt() {
@@ -537,7 +485,7 @@ function fillDeviceSelect(select, devices, selected, defaultLabel = '') {
 async function startLiveTranslation() {
   const apiKey = getActiveApiKey();
   if (!apiKey) {
-    showToast(`Add ${provider === 'openai' ? 'OpenAI' : 'Gemini'} API key first.`, 'error');
+    showToast('Add Gemini API key first.', 'error');
     $('settingsOverlay').classList.add('open');
     return;
   }
@@ -609,8 +557,6 @@ async function startLiveTranslation() {
         apiKey,
         model: selectedModel,
         voice: getBuyerHindiVoice(),
-        inputLanguage: 'en',
-        transcriptionPrompt: getBuyerTranscriptionPrompt(),
         translationMode,
         outputMode: playBuyerHindiVoice ? 'audio' : 'text',
         playAudio: playBuyerHindiVoice,
@@ -889,7 +835,7 @@ function setTranscript(element, text) {
 }
 
 function getActiveApiKey() {
-  return provider === 'openai' ? openaiApiKey : geminiApiKey;
+  return geminiApiKey;
 }
 
 function setStatus(state, text) {
@@ -963,7 +909,7 @@ function flashBox(element) {
 }
 
 function toggleKeyVisibility() {
-  const inputs = [$('geminiKeyInput'), $('openaiKeyInput')];
+  const inputs = [$('geminiKeyInput')];
   const shouldShow = inputs[0].type === 'password';
   inputs.forEach((input) => { input.type = shouldShow ? 'text' : 'password'; });
   $('toggleKeys').textContent = shouldShow ? 'Hide keys' : 'Show keys';

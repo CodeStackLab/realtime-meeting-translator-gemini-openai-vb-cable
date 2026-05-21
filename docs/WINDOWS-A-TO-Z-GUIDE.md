@@ -66,25 +66,22 @@ npm start
 
 ## 6. Add API Key And Pick Model
 
-Open app Settings and add one of:
+Open app Settings and add:
 
 - Gemini API key
-- OpenAI API key
 
 Then select:
 
-- Provider: `Google Gemini Live` or `OpenAI Realtime`
-- Model: the best realtime speech/audio model available in your account
+- Provider: Google Gemini Live
+- Model: the best Gemini Live speech/audio model available in your account
 - Voice: start with `Puck` for a young Indian male-style English buyer voice; try `Fenrir`, `Orus`, or `Leda` for a different tone.
-- Buyer Hindi voice style: Auto, Male, or Female. Manual selection is most reliable because not every realtime provider exposes speaker-gender detection.
+- Buyer Hindi voice style: Auto, Male, or Female. Manual selection is most reliable because Gemini Live does not expose automatic speaker-gender detection for this workflow.
 
 Recommended models:
 
-- Gemini: `gemini-3.1-flash-live-preview`; fallback `gemini-2.5-flash-native-audio-preview-12-2025`
-- Cheapest OpenAI speech translation: use `gpt-realtime-translate` at about `$0.034/min`.
-- Cheapest general OpenAI realtime voice model: use `gpt-realtime-mini`; switch to `gpt-realtime-2` for best quality.
+- Best documented Gemini Live native-audio model: `gemini-2.5-flash-native-audio-preview-12-2025`
 
-The app is free to use, but your Gemini/OpenAI provider may have quota, billing, or model-access rules.
+The app is free to use, but your Gemini account may have quota, billing, or model-access rules.
 
 Do not upload `config.json` publicly.
 
