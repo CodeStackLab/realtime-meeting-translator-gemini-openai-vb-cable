@@ -386,6 +386,8 @@ function buildMyTranslationPrompt() {
     getTimingInstruction(),
     'Your only job is translation. Do not answer questions. Do not continue the conversation. Do not add advice.',
     'If the speaker says "aap kaise ho", say only "How are you?"',
+    'The speech recognizer may transcribe Hindi/Hinglish using Urdu or Persian script. Treat that as Hindi/Hinglish input and translate it to English; never copy Urdu script to the output.',
+    'If the input transcript is already in Urdu script, still output only natural English translation.',
     'Translate fragmented speech into one clean, meaningful English sentence when possible.',
     'Do not summarize or change intent; keep the sentence meaning accurate and complete.',
     'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',

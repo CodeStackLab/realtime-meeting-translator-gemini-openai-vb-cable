@@ -436,7 +436,7 @@ ipcMain.handle('live-open', (event, {
             finish({ success: true });
             return;
           }
-          if (msg.type === 'response.audio.delta' && msg.delta) {
+          if ((msg.type === 'response.audio.delta' || msg.type === 'response.output_audio.delta') && msg.delta) {
             logEvent('live-audio.out', { sessionId, bytesBase64: msg.delta.length });
             mainWindow.webContents.send('live-audio', {
               sessionId,
@@ -444,9 +444,15 @@ ipcMain.handle('live-open', (event, {
               mimeType: 'audio/pcm;rate=24000',
             });
           }
-          if ((msg.type === 'response.audio_transcript.delta' || msg.type === 'response.text.delta') && msg.delta) {
+          if ((msg.type === 'response.audio_transcript.delta'
+            || msg.type === 'response.output_audio_transcript.delta'
+            || msg.type === 'response.text.delta') && msg.delta) {
             logEvent('live-transcript.out', { sessionId, chars: msg.delta.length, append: true });
             mainWindow.webContents.send('live-transcript', { sessionId, text: msg.delta, append: true });
+          }
+          if (msg.type === 'conversation.item.input_audio_transcription.delta' && msg.delta) {
+            logEvent('live-input-transcript.delta', { sessionId, chars: msg.delta.length });
+            mainWindow.webContents.send('live-input-transcript', { sessionId, text: msg.delta, append: true });
           }
           if (msg.type === 'conversation.item.input_audio_transcription.completed' && msg.transcript) {
             logEvent('live-input-transcript.out', { sessionId, chars: msg.transcript.length });
