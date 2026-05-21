@@ -331,12 +331,19 @@ function getTranslationModeLabel() {
 
 function getTimingInstruction() {
   if (translationMode === 'fast') {
-    return 'Timing mode: Ultra Realtime Streaming. Start translating while the speaker is still talking. Output short natural phrase chunks immediately, but still use complete words and normal spaces.';
+    return 'Timing mode: Ultra Realtime Streaming. Translate the earliest stable phrase immediately. Do not wait for a full sentence if a meaningful phrase is already clear. Output short natural phrase chunks with complete words and normal spaces.';
   }
   if (translationMode === 'accurate') {
     return 'Timing mode: Accurate Sentence Mode. Wait for a complete sentence or clear natural pause, then output one polished sentence. A little delay is acceptable for clarity.';
   }
   return 'Timing mode: Balanced Sentence Mode. Wait for a short natural pause or complete phrase, then output one clean sentence quickly. Capture phrases such as "main ghar ja raha hun" as one unit before translating.';
+}
+
+function getChunkingInstruction() {
+  if (translationMode === 'fast') {
+    return 'Fast mode chunking: prefer phrase-by-phrase output. A short meaningful phrase is enough; do not hold the translation just to polish a full sentence.';
+  }
+  return 'Translate fragmented speech into one clean, meaningful sentence when possible.';
 }
 
 function buildMyTranslationPrompt() {
@@ -352,14 +359,14 @@ function buildMyTranslationPrompt() {
     'If the speaker says "aap kaise ho", say only "How are you?"',
     'The speech recognizer may transcribe Hindi/Hinglish using Urdu or Persian script. Treat that as Hindi/Hinglish input and translate it to English; never copy Urdu script to the output.',
     'If the input transcript is already in Urdu script, still output only natural English translation.',
-    'Translate fragmented speech into one clean, meaningful English sentence when possible.',
+    getChunkingInstruction(),
     'Do not summarize or change intent; keep the sentence meaning accurate and complete.',
     'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',
     'Use simple professional English that sounds natural when spoken to a buyer.',
     'Speak in a clear professional young Indian male English style if the selected voice supports it.',
     'Prefer Indian English pronunciation and buyer-friendly call-center clarity.',
     'Never stream broken letters or joined words. Use complete words with normal spaces.',
-    'Prefer short sentence-wise output over word-by-word output.',
+    'In fast mode, prefer short phrase-wise output over full sentence output. Never output single letters or broken words.',
     'Never output markdown, analysis, labels, notes, "Awaiting input", "I understand", or internal reasoning.',
     'If the input is about translation not working, translate that sentence only. Example: "translation kaam kyun nahi kar raha" -> "Why is the translation not working?"',
     'Output only the English translation.',
@@ -375,13 +382,13 @@ function buildBuyerTranslationPrompt() {
     'The buyer speaks English. Translate only what the buyer says.',
     'Never answer the buyer. Never reply to questions. Never add advice or explanations.',
     'If the buyer says "How are you?", say only "\u0906\u092a \u0915\u0948\u0938\u0947 \u0939\u0948\u0902?" Never say "\u092e\u0948\u0902 \u0920\u0940\u0915 \u0939\u0942\u0902".',
-    'Translate fragmented speech into one clean, meaningful Hindi sentence when possible.',
+    getChunkingInstruction(),
     'Do not summarize or change intent; keep the sentence meaning accurate and complete.',
     'Use simple, professional, pure Hindi in Devanagari script that an Indian caller can understand easily.',
     'Do not use Hinglish, Roman Hindi, Urdu-heavy words, or English words when a clear Hindi word is available.',
     'Write and speak in Devanagari only. Example: say "\u0915\u0943\u092a\u092f\u093e \u0905\u092a\u0928\u093e \u0928\u093e\u092e \u092c\u0924\u093e\u0907\u090f", not "please apna name bataye".',
     'Never stream broken letters or joined words. Use complete words with normal spaces.',
-    'Prefer short sentence-wise output over word-by-word output.',
+    'In fast mode, prefer short phrase-wise output over full sentence output. Never output single letters or broken words.',
     'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',
     'Never output markdown, analysis, labels, notes, "Awaiting input", "I understand", or internal reasoning.',
     'Output only the Hindi translation.',
