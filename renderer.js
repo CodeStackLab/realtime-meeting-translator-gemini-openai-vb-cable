@@ -297,6 +297,8 @@ async function testSelectedModelAccess() {
       apiKey,
       model: selectedModel,
       voice: selectedVoice,
+      inputLanguage: 'hi',
+      transcriptionPrompt: getMyTranscriptionPrompt(),
       translationMode,
     });
     if (res.success) {
@@ -380,10 +382,20 @@ function getTimingInstruction() {
   return 'Timing mode: Balanced Sentence Mode. Wait for a short natural pause or complete phrase, then output one clean sentence quickly. Capture phrases such as "main ghar ja raha hun" as one unit before translating.';
 }
 
+function getMyTranscriptionPrompt() {
+  return 'Hindi and Hinglish meeting speech from an Indian male speaker. The speaker may mix Hindi and English business words. Prefer Hindi words in Devanagari script in the transcript. Do not output Urdu or Persian script.';
+}
+
+function getBuyerTranscriptionPrompt() {
+  return 'English meeting speech from a buyer. Keep names, numbers, prices, account details, and business terms accurate.';
+}
+
 function buildMyTranslationPrompt() {
   return [
     'You are a realtime Hindi/Hinglish to English speech translation engine for a live meeting.',
     'CRITICAL MODE: TRANSLATION ONLY. You are not a chatbot, assistant, tutor, or helper.',
+    'SOURCE LANGUAGE IS LOCKED: Treat every incoming utterance on this channel as Hindi or Hinglish from the seller, even if the speech recognizer writes it in Urdu/Persian script or mixes scripts.',
+    'TARGET LANGUAGE IS LOCKED: Output English only. Never output Hindi, Urdu, Roman Urdu, Devanagari, Arabic script, or any other language on this channel.',
     'Never acknowledge instructions. Never say "sure", "understood", "please go ahead", "please let me know", or "I will translate".',
     'Never explain what you are doing. Never ask the speaker to continue. Never respond to the meaning as a participant.',
     getTimingInstruction(),
@@ -407,16 +419,18 @@ function buildMyTranslationPrompt() {
 
 function buildBuyerTranslationPrompt() {
   return [
-    `You are a realtime ${buyerLang} to pure Hindi speech translation engine for a live meeting.`,
+    'You are a realtime English to pure Hindi speech translation engine for a live meeting.',
+    'SOURCE LANGUAGE IS LOCKED: Treat every incoming utterance on this channel as English from the buyer.',
+    'TARGET LANGUAGE IS LOCKED: Output pure Hindi in Devanagari script only. Never output Urdu script, Roman Hindi, Hinglish, or English sentences on this channel.',
     getTimingInstruction(),
-    `The buyer speaks ${buyerLang}. Translate only what the buyer says.`,
+    'The buyer speaks English. Translate only what the buyer says.',
     'Never answer the buyer. Never reply to questions. Never add advice or explanations.',
-    'If the buyer says "How are you?", say only "आप कैसे हैं?" Never say "मैं ठीक हूँ".',
+    'If the buyer says "How are you?", say only "\u0906\u092a \u0915\u0948\u0938\u0947 \u0939\u0948\u0902?" Never say "\u092e\u0948\u0902 \u0920\u0940\u0915 \u0939\u0942\u0902".',
     'Translate fragmented speech into one clean, meaningful Hindi sentence when possible.',
     'Do not summarize or change intent; keep the sentence meaning accurate and complete.',
     'Use simple, professional, pure Hindi in Devanagari script that an Indian caller can understand easily.',
     'Do not use Hinglish, Roman Hindi, Urdu-heavy words, or English words when a clear Hindi word is available.',
-    'Write and speak in Devanagari only. Example: say "कृपया अपना नाम बताइए", not "please apna name bataye".',
+    'Write and speak in Devanagari only. Example: say "\u0915\u0943\u092a\u092f\u093e \u0905\u092a\u0928\u093e \u0928\u093e\u092e \u092c\u0924\u093e\u0907\u090f", not "please apna name bataye".',
     'Never stream broken letters or joined words. Use complete words with normal spaces.',
     'Prefer short sentence-wise output over word-by-word output.',
     'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',
@@ -424,7 +438,6 @@ function buildBuyerTranslationPrompt() {
     'Output only the Hindi translation.',
   ].join(' ');
 }
-
 async function populateDevices() {
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -595,6 +608,8 @@ async function startLiveTranslation() {
         apiKey,
         model: selectedModel,
         voice: getBuyerHindiVoice(),
+        inputLanguage: 'en',
+        transcriptionPrompt: getBuyerTranscriptionPrompt(),
         translationMode,
         outputMode: playBuyerHindiVoice ? 'audio' : 'text',
         playAudio: playBuyerHindiVoice,

@@ -5,6 +5,8 @@ class LiveSession {
     apiKey,
     model,
     voice,
+    inputLanguage = '',
+    transcriptionPrompt = '',
     translationMode = 'fast',
     outputMode,
     playAudio = true,
@@ -23,6 +25,8 @@ class LiveSession {
     this.apiKey = apiKey;
     this.model = model;
     this.voice = voice;
+    this.inputLanguage = inputLanguage;
+    this.transcriptionPrompt = transcriptionPrompt;
     this.translationMode = translationMode;
     this.outputMode = outputMode;
     this.playAudio = playAudio;
@@ -76,6 +80,8 @@ class LiveSession {
       sessionId: this.sessionId,
       model: this.model,
       voice: this.voice,
+      inputLanguage: this.inputLanguage,
+      transcriptionPrompt: this.transcriptionPrompt,
       translationMode: this.translationMode,
       outputMode: this.outputMode,
       systemPrompt: this.systemPrompt,

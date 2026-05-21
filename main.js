@@ -310,6 +310,8 @@ ipcMain.handle('live-open', (event, {
   model,
   outputMode = 'audio',
   translationMode = 'fast',
+  inputLanguage = '',
+  transcriptionPrompt = '',
 }) => {
   return new Promise((resolve) => {
     let ws;
@@ -379,7 +381,11 @@ ipcMain.handle('live-open', (event, {
                 input: {
                   format: { type: 'audio/pcm', rate: 24000 },
                   turn_detection: getOpenAiTurnDetection(translationMode),
-                  transcription: { model: 'gpt-4o-mini-transcribe' },
+                  transcription: {
+                    model: 'gpt-4o-mini-transcribe',
+                    ...(inputLanguage ? { language: inputLanguage } : {}),
+                    ...(transcriptionPrompt ? { prompt: transcriptionPrompt } : {}),
+                  },
                 },
                 output: {
                   format: { type: 'audio/pcm', rate: 24000 },
