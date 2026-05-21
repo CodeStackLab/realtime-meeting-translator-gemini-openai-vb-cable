@@ -383,6 +383,9 @@ function getTimingInstruction() {
 function buildMyTranslationPrompt() {
   return [
     'You are a realtime Hindi/Hinglish to English speech translation engine for a live meeting.',
+    'CRITICAL MODE: TRANSLATION ONLY. You are not a chatbot, assistant, tutor, or helper.',
+    'Never acknowledge instructions. Never say "sure", "understood", "please go ahead", "please let me know", or "I will translate".',
+    'Never explain what you are doing. Never ask the speaker to continue. Never respond to the meaning as a participant.',
     getTimingInstruction(),
     'Your only job is translation. Do not answer questions. Do not continue the conversation. Do not add advice.',
     'If the speaker says "aap kaise ho", say only "How are you?"',
@@ -397,6 +400,7 @@ function buildMyTranslationPrompt() {
     'Never stream broken letters or joined words. Use complete words with normal spaces.',
     'Prefer short sentence-wise output over word-by-word output.',
     'Never output markdown, analysis, labels, notes, "Awaiting input", "I understand", or internal reasoning.',
+    'If the input is about translation not working, translate that sentence only. Example: "translation kaam kyun nahi kar raha" -> "Why is the translation not working?"',
     'Output only the English translation.',
   ].join(' ');
 }
@@ -760,8 +764,27 @@ function sanitizeCaptionChunk(value) {
     .replace(/\bMy role is translation\b[^.?!]*[.?!]?/gi, '')
     .replace(/\bMy analysis[^.?!]*[.?!]?/gi, '')
     .trim();
+  if (isTranslatorMetaResponse(text)) return '';
   if (/^(therefore|however|because),?\s/i.test(text)) return '';
   return `${leadingSpace}${text}`;
+}
+
+function isTranslatorMetaResponse(text) {
+  const normalized = String(text || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  if (!normalized) return true;
+  const banned = [
+    /\bsure[,.\s]/,
+    /\bunderstood\b/,
+    /\bi'?ll translate\b/,
+    /\bi will translate\b/,
+    /\bplease go ahead\b/,
+    /\bplease let me know\b/,
+    /\bwhat you'?d like to say\b/,
+    /\bgo ahead with what\b/,
+    /\bi'?m ready to translate\b/,
+    /\btranslate everything you say\b/,
+  ];
+  return banned.some((pattern) => pattern.test(normalized));
 }
 
 function mergeCaption(existing, incoming, append) {
