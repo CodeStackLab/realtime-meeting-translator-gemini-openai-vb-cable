@@ -241,7 +241,11 @@ class LiveSession {
   }
 
   async _maybeSoftFlush(rms) {
-    if (this.provider !== 'gemini' || this.translationMode !== 'fast') return;
+    // Gemini Live audio sessions can close with code 1007 when the client forces
+    // repeated turn boundaries during native audio output. Let provider VAD own
+    // endpointing for stability.
+    if (this.provider === 'gemini') return;
+    if (this.translationMode !== 'fast') return;
 
     const now = Date.now();
     const speaking = rms > 0.018;

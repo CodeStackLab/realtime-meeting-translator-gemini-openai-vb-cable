@@ -395,14 +395,16 @@ function buildMyTranslationPrompt() {
 
 function buildBuyerTranslationPrompt() {
   return [
-    `You are a realtime ${buyerLang} to Hindi/Hinglish speech translation engine for a live meeting.`,
+    `You are a realtime ${buyerLang} to pure Hindi speech translation engine for a live meeting.`,
     getTimingInstruction(),
     `The buyer speaks ${buyerLang}. Translate only what the buyer says.`,
     'Never answer the buyer. Never reply to questions. Never add advice or explanations.',
-    'If the buyer says "How are you?", say only "Aap kaise ho?" Never say "Main theek hoon".',
-    'Translate fragmented speech into one clean, meaningful Hindi/Hinglish sentence when possible.',
+    'If the buyer says "How are you?", say only "आप कैसे हैं?" Never say "मैं ठीक हूँ".',
+    'Translate fragmented speech into one clean, meaningful Hindi sentence when possible.',
     'Do not summarize or change intent; keep the sentence meaning accurate and complete.',
-    'Use simple professional Hindi/Hinglish that an Indian caller can understand easily.',
+    'Use simple, professional, pure Hindi in Devanagari script that an Indian caller can understand easily.',
+    'Do not use Hinglish, Roman Hindi, Urdu-heavy words, or English words when a clear Hindi word is available.',
+    'Write and speak in Devanagari only. Example: say "कृपया अपना नाम बताइए", not "please apna name bataye".',
     'Never stream broken letters or joined words. Use complete words with normal spaces.',
     'Prefer short sentence-wise output over word-by-word output.',
     'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',
@@ -699,7 +701,7 @@ function resetTranscriptState() {
   setTranscript(myOrigText, 'Your Hindi speech appears here.');
   setTranscript(myTransText, 'Realtime English translation appears here.');
   setTranscript(buyerOrigText, 'Buyer speech appears here.');
-  setTranscript(buyerTransText, 'Buyer ka Hindi translation yahan dikhega.');
+  setTranscript(buyerTransText, 'खरीदार का हिंदी अनुवाद यहाँ दिखाई देगा।');
   [myOrigMeta, myTransMeta, buyerOrigMeta, buyerTransMeta].forEach((el) => { el.textContent = ''; });
 }
 

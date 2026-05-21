@@ -25,7 +25,7 @@ Fix:
 Correct behavior:
 
 - Buyer says: `How are you?`
-- Hindi translation: `Aap kaise ho?`
+- Hindi translation: `आप कैसे हैं?`
 
 Wrong behavior:
 
