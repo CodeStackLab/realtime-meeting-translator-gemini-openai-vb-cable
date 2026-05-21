@@ -8,9 +8,13 @@ Open the official VB-Audio shop page:
 
 [https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html)
 
+Direct `$5` one-time donation option, when available on the official shop:
+
+[https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html#/30-donation_s-p1_i_m_a_fan](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html#/30-donation_s-p1_i_m_a_fan)
+
 This project is not sponsored by VB-Audio and is not an official VB-Audio product. VB-Cable A+B is recommended only because it creates two virtual audio cables that make meeting audio routing possible.
 
-The official shop uses a contribution/donation selector. Select the contribution amount shown on the official page or checkout. If the `$5` contribution option appears for you, choose `$5`, complete checkout, and download the software from VB-Audio. Price/contribution display can change depending on selection, account, region, or shop updates.
+The official shop uses a contribution/donation selector. Select the contribution amount shown on the official page or checkout. If the `$5` one-time contribution option appears for you, choose `$5`, complete checkout, and download the software from VB-Audio. After installation, you can use VB-Cable A+B for this app's audio routing. Price/contribution display can change depending on selection, account, region, or shop updates.
 
 The official page describes VB-Cable A+B as two Windows virtual audio drivers and says the download includes two ZIP archives, one for Cable A and one for Cable B. It also says to extract files, run setup as administrator, and reboot after installation.
 

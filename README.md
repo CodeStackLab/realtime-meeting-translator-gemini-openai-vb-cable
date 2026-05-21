@@ -19,9 +19,13 @@ Official VB-Audio shop link:
 
 [VB-Cable A+B for Windows](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html)
 
+Direct `$5` one-time donation option, when available on the official shop:
+
+[VB-Cable A+B - $5 donation / P1 I'm a fan](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html#/30-donation_s-p1_i_m_a_fan)
+
 VB-Cable A+B is used only for audio routing. This project is not sponsored by VB-Audio and is not an official VB-Audio product. Buy/download it only from the official VB-Audio website.
 
-The VB-Audio shop uses a contribution/donation selector. Select the contribution amount shown on the official page or checkout. If you see a `$5` donation/contribution option, you can choose it and complete checkout to get the download link. The amount can change by selection, account, region, or shop updates.
+The VB-Audio shop uses a contribution/donation selector. Select the contribution amount shown on the official page or checkout. If you see the `$5` one-time donation/contribution option, you can choose it and complete checkout to get the download link. After that, VB-Cable A+B can be used for this app's audio routing. The amount can change by selection, account, region, or shop updates.
 
 After checkout, VB-Audio provides a download link with two driver packages:
 

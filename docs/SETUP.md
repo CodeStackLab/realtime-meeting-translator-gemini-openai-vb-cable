@@ -8,7 +8,9 @@ Short setup:
 
 1. Buy/donate/download VB-Cable A+B from the official shop:
    [https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html)
-   If the official shop shows a `$5` contribution option, choose it and complete checkout to get the download link. This project is not sponsored by VB-Audio.
+   Direct `$5` one-time donation option, when available:
+   [https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html#/30-donation_s-p1_i_m_a_fan](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html#/30-donation_s-p1_i_m_a_fan)
+   If the official shop shows this `$5` contribution option, choose it and complete checkout to get the download link. This project is not sponsored by VB-Audio.
 2. Install Cable A as administrator.
 3. Install Cable B as administrator.
 4. Restart Windows.

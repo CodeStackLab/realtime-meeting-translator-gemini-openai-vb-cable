@@ -66,7 +66,11 @@ Use the official VB-Audio shop:
 
 [https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html)
 
-This project is not sponsored by VB-Audio. If the official shop shows a `$5` donation/contribution option, select it there and download from your VB-Audio account/download page after checkout.
+Direct `$5` one-time donation option, when available:
+
+[https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html#/30-donation_s-p1_i_m_a_fan](https://shop.vb-audio.com/en/win-apps/12-vb-cable-ab.html#/30-donation_s-p1_i_m_a_fan)
+
+This project is not sponsored by VB-Audio. If the official shop shows this `$5` donation/contribution option, select it there and download from your VB-Audio account/download page after checkout. VB-Cable A+B is used only for audio routing with this app.
 
 ## Error Code 1007
 
