@@ -1,9 +1,9 @@
 {
   "gemini_api_key": "",
   "openai_api_key": "",
-  "provider": "gemini",
-  "model": "gemini-3.1-flash-live-preview",
-  "voice": "Puck",
+  "provider": "openai",
+  "model": "gpt-realtime-mini",
+  "voice": "cedar",
   "buyer_voice_style": "male",
   "translation_mode": "fast",
   "buyer_lang": "English",

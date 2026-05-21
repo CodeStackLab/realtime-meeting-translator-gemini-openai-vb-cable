@@ -81,7 +81,7 @@ Then select:
 Recommended models:
 
 - Gemini: `gemini-3.1-flash-live-preview`; fallback `gemini-2.5-flash-native-audio-preview-12-2025`
-- OpenAI in this app: `gpt-realtime-2`, then `gpt-realtime-1.5`, then `gpt-realtime-mini`
+- OpenAI in this app: use `gpt-realtime-mini` for low-cost testing; switch to `gpt-realtime-2` for best quality.
 - OpenAI dedicated live translation endpoint: `gpt-realtime-translate`
 
 The app is free to use, but your Gemini/OpenAI provider may have quota, billing, or model-access rules.

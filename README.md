@@ -78,7 +78,7 @@ In Settings:
 Recommended:
 
 - For OpenAI pure live translation, use `gpt-realtime-translate` when you integrate the dedicated realtime translations endpoint.
-- For OpenAI speech-to-speech voice interaction in this app, start with `gpt-realtime-2`; use `gpt-realtime-1.5` for strong audio-in/audio-out voice, or `gpt-realtime-mini` for lower cost.
+- For low-cost testing, start with `gpt-realtime-mini`. For best OpenAI speech-to-speech quality, switch to `gpt-realtime-2`.
 - For Gemini speech-to-speech in this app, start with `gemini-3.1-flash-live-preview`; use `gemini-2.5-flash-native-audio-preview-12-2025` as a stable fallback.
 - If one provider/model is slow, unavailable, or too costly, switch provider/model in Settings.
 
