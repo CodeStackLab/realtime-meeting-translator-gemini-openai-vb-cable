@@ -213,7 +213,7 @@ ipcMain.handle('test-live-model', async (event, {
               output_modalities: ['audio'],
               audio: {
                 input: {
-                  format: { type: 'audio/pcm', rate: 16000 },
+                  format: { type: 'audio/pcm', rate: 24000 },
                   turn_detection: getOpenAiTurnDetection(translationMode),
                   transcription: { model: 'gpt-4o-mini-transcribe' },
                 },
@@ -376,7 +376,7 @@ ipcMain.handle('live-open', (event, {
               output_modalities: outputMode === 'audio' ? ['audio'] : ['text'],
               audio: {
                 input: {
-                  format: { type: 'audio/pcm', rate: 16000 },
+                  format: { type: 'audio/pcm', rate: 24000 },
                   turn_detection: getOpenAiTurnDetection(translationMode),
                   transcription: { model: 'gpt-4o-mini-transcribe' },
                 },

@@ -45,6 +45,7 @@ class LiveSession {
     this.pcmQueue = [];
     this.isPlaying = false;
     this.sampleRate = 24000;
+    this.inputSampleRate = provider === 'openai' ? 24000 : 16000;
     this.silenceFrames = 0;
     this.lastTurnCompleteAt = 0;
     this.activeSourceNode = null;
@@ -146,7 +147,7 @@ class LiveSession {
       sessionId: this.sessionId,
       tracks: stream?.getAudioTracks?.().map((track) => ({ label: track.label, enabled: track.enabled, muted: track.muted })) || [],
     });
-    this.audioCtx = new AudioContext({ sampleRate: 16000 });
+    this.audioCtx = new AudioContext({ sampleRate: this.inputSampleRate });
     if (this.audioCtx.state === 'suspended') {
       await this.audioCtx.resume();
     }
