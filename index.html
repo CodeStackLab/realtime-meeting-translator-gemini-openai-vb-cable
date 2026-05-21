@@ -41,7 +41,7 @@
         <button class="start-btn" id="startBtn">
           <span id="startBtnText">Start Live Translation</span>
         </button>
-        <div class="start-hint" id="startHint">Fast Streaming Realtime mode</div>
+        <div class="start-hint" id="startHint">Balanced Sentence Mode ready</div>
       </div>
       <div class="route-card buyer">
         <div class="route-label">Buyer side</div>
@@ -138,6 +138,20 @@
             Live speech model
             <select id="modelSelect"></select>
           </label>
+        </div>
+
+        <div class="settings-row two">
+          <label>
+            Translation timing
+            <select id="translationModeSelect">
+              <option value="balanced">Balanced Sentence Mode - recommended</option>
+              <option value="fast">Fast Streaming - lowest delay</option>
+              <option value="accurate">Accurate Sentence Mode - cleaner sentences</option>
+            </select>
+          </label>
+          <div class="setting-note">
+            Balanced waits for a short natural pause so each side gets clean sentence-wise translation.
+          </div>
         </div>
 
         <div class="settings-row two">
@@ -251,7 +265,7 @@
           <ol>
             <li>Your microphone in this app should be your real mic.</li>
             <li>Zoom Speaker should be CABLE-A Input. App Buyer audio source should be CABLE-A Output.</li>
-            <li>Fast Streaming Realtime is the default mode for both sides.</li>
+            <li>Balanced Sentence Mode is the default for both sides. Use Fast only when lowest delay matters most.</li>
             <li>Set app translated output to CABLE-B Input. Set Zoom Microphone to CABLE-B Output.</li>
             <li>This separates buyer audio from your AI output and prevents repeated captions/echo.</li>
           </ol>

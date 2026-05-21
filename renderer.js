@@ -53,6 +53,7 @@ let geminiApiKey = '';
 let openaiApiKey = '';
 let selectedVoice = 'Puck';
 let buyerVoiceStyle = 'auto';
+let translationMode = 'balanced';
 let buyerLang = 'English';
 let myMicDeviceId = '';
 let buyerMicDeviceId = '';
@@ -154,6 +155,7 @@ async function loadSettings() {
   openaiApiKey = cfg.openai_api_key || localStorage.getItem('openai_api_key') || '';
   selectedVoice = cfg.voice || cfg.my_voice_gemini || localStorage.getItem('voice') || (provider === 'openai' ? 'marin' : 'Puck');
   buyerVoiceStyle = cfg.buyer_voice_style || localStorage.getItem('buyer_voice_style') || 'auto';
+  translationMode = normalizeTranslationMode(cfg.translation_mode || localStorage.getItem('translation_mode') || 'balanced');
   buyerLang = cfg.buyer_lang || localStorage.getItem('buyer_lang') || 'English';
   myMicDeviceId = cfg.my_mic_device || localStorage.getItem('my_mic_device') || '';
   buyerMicDeviceId = cfg.buyer_mic_device || localStorage.getItem('buyer_mic_device') || '';
@@ -173,6 +175,7 @@ async function loadSettings() {
   populateVoices();
   $('voiceSelect').value = selectedVoice;
   $('buyerVoiceStyleSelect').value = buyerVoiceStyle;
+  $('translationModeSelect').value = translationMode;
   $('geminiKeyInput').value = geminiApiKey;
   $('openaiKeyInput').value = openaiApiKey;
   $('buyerLangSelect').value = buyerLang;
@@ -188,6 +191,7 @@ function saveSettings() {
   openaiApiKey = $('openaiKeyInput').value.trim();
   selectedVoice = $('voiceSelect').value;
   buyerVoiceStyle = $('buyerVoiceStyleSelect').value;
+  translationMode = normalizeTranslationMode($('translationModeSelect').value);
   buyerLang = $('buyerLangSelect').value;
   myMicDeviceId = $('myMicSelect').value;
   buyerMicDeviceId = $('buyerMicSelect').value;
@@ -209,6 +213,7 @@ function saveSettings() {
   localStorage.setItem('openai_api_key', openaiApiKey);
   localStorage.setItem('voice', selectedVoice);
   localStorage.setItem('buyer_voice_style', buyerVoiceStyle);
+  localStorage.setItem('translation_mode', translationMode);
   localStorage.setItem('buyer_lang', buyerLang);
   localStorage.setItem('my_mic_device', myMicDeviceId);
   localStorage.setItem('buyer_mic_device', buyerMicDeviceId);
@@ -225,6 +230,7 @@ function saveSettings() {
     openai_api_key: openaiApiKey,
     voice: selectedVoice,
     buyer_voice_style: buyerVoiceStyle,
+    translation_mode: translationMode,
     buyer_lang: buyerLang,
     monitor_my_translation: monitorMyTranslation,
     buyer_capture_enabled: buyerCaptureEnabled,
@@ -246,6 +252,7 @@ async function testSelectedModelAccess() {
   geminiApiKey = $('geminiKeyInput').value.trim();
   openaiApiKey = $('openaiKeyInput').value.trim();
   selectedVoice = $('voiceSelect').value;
+  translationMode = normalizeTranslationMode($('translationModeSelect').value);
   const apiKey = getActiveApiKey();
 
   if (!apiKey) {
@@ -263,6 +270,7 @@ async function testSelectedModelAccess() {
       apiKey,
       model: selectedModel,
       voice: selectedVoice,
+      translationMode,
     });
     if (res.success) {
       showToast(`${res.model} is available for your API key.`, 'success');
@@ -325,9 +333,30 @@ function getBuyerHindiVoice() {
   return 'Aoede';
 }
 
+function normalizeTranslationMode(mode) {
+  return ['fast', 'balanced', 'accurate'].includes(mode) ? mode : 'balanced';
+}
+
+function getTranslationModeLabel() {
+  if (translationMode === 'fast') return 'Fast Streaming';
+  if (translationMode === 'accurate') return 'Accurate Sentence Mode';
+  return 'Balanced Sentence Mode';
+}
+
+function getTimingInstruction() {
+  if (translationMode === 'fast') {
+    return 'Timing mode: Fast Streaming. Translate as soon as a phrase is clear, but still use complete words and normal spaces.';
+  }
+  if (translationMode === 'accurate') {
+    return 'Timing mode: Accurate Sentence Mode. Wait for a complete sentence or clear natural pause, then output one polished sentence. A little delay is acceptable for clarity.';
+  }
+  return 'Timing mode: Balanced Sentence Mode. Wait for a short natural pause or complete phrase, then output one clean sentence quickly. Capture phrases such as "main ghar ja raha hun" as one unit before translating.';
+}
+
 function buildMyTranslationPrompt() {
   return [
     'You are a realtime Hindi/Hinglish to English speech translation engine for a live meeting.',
+    getTimingInstruction(),
     'Your only job is translation. Do not answer questions. Do not continue the conversation. Do not add advice.',
     'If the speaker says "aap kaise ho", say only "How are you?"',
     'Translate fragmented speech into one clean, meaningful English sentence when possible.',
@@ -345,6 +374,7 @@ function buildMyTranslationPrompt() {
 function buildBuyerTranslationPrompt() {
   return [
     `You are a realtime ${buyerLang} to Hindi/Hinglish speech translation engine for a live meeting.`,
+    getTimingInstruction(),
     `The buyer speaks ${buyerLang}. Translate only what the buyer says.`,
     'Never answer the buyer. Never reply to questions. Never add advice or explanations.',
     'If the buyer says "How are you?", say only "Aap kaise ho?" Never say "Main theek hoon".',
@@ -485,6 +515,7 @@ async function startLiveTranslation() {
     window.electronAPI.logEvent('renderer.start.settings', {
       provider,
       model: selectedModel,
+      translationMode,
       buyerCaptureEnabled,
       playBuyerHindiVoice,
       myMicDeviceId,
@@ -501,6 +532,7 @@ async function startLiveTranslation() {
       apiKey,
       model: selectedModel,
       voice: selectedVoice,
+      translationMode,
       outputMode: 'audio',
       playAudio: true,
       outputDeviceId: translatedOutputDeviceId,
@@ -527,6 +559,7 @@ async function startLiveTranslation() {
         apiKey,
         model: selectedModel,
         voice: getBuyerHindiVoice(),
+        translationMode,
         outputMode: playBuyerHindiVoice ? 'audio' : 'text',
         playAudio: playBuyerHindiVoice,
         outputDeviceId: buyerVoiceOutputDeviceId,
@@ -628,7 +661,8 @@ function updateStartButton() {
   startBtn.disabled = starting;
   startBtn.classList.toggle('stop', running || starting);
   startBtnText.textContent = starting ? 'Starting...' : (running ? 'Stop Translation' : 'Start Live Translation');
-  startHint.textContent = running ? 'Fast streaming active on both sides' : 'Fast Streaming Realtime mode';
+  const modeLabel = getTranslationModeLabel();
+  startHint.textContent = running ? `${modeLabel} active on both sides` : `${modeLabel} ready`;
   myMicStatus.textContent = running || starting ? 'Hindi mic streaming' : 'Mic off';
   buyerMicStatus.textContent = running || starting ? 'Buyer audio streaming' : 'Listening off';
 }

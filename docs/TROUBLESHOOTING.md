@@ -39,9 +39,9 @@ The app prompt is configured for translation only. It should not answer question
 
 The app filters common internal-analysis text and removes the conversation history panel. If you still see labels such as `Awaiting Further Input`, restart the app and check that you are running the newest build.
 
-## Realtime Feels Slow
+## Realtime Feels Slow Or Broken Into Words
 
-Use the default Fast Streaming Realtime mode:
+Use the default `Balanced Sentence Mode` for professional meetings. It waits for a short natural pause, then sends one cleaner sentence. If you need the absolute lowest delay, switch to `Fast Streaming`; if words are joining together or sentences are unclear, switch to `Accurate Sentence Mode`.
 
 - Gemini model: `gemini-3.1-flash-live-preview`
 - Good internet connection

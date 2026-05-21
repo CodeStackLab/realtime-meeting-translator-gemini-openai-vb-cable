@@ -9,6 +9,37 @@ let mainWindow;
 
 const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-live-preview';
 
+function normalizeTranslationMode(mode) {
+  return ['fast', 'balanced', 'accurate'].includes(mode) ? mode : 'balanced';
+}
+
+function getRealtimeInputConfig(mode = 'balanced') {
+  const timings = {
+    fast: { prefixPaddingMs: 120, silenceDurationMs: 450 },
+    balanced: { prefixPaddingMs: 180, silenceDurationMs: 850 },
+    accurate: { prefixPaddingMs: 260, silenceDurationMs: 1250 },
+  };
+  const selected = timings[normalizeTranslationMode(mode)];
+  return {
+    automaticActivityDetection: {
+      disabled: false,
+      ...selected,
+    },
+  };
+}
+
+function getOpenAiTurnDetection(mode = 'balanced') {
+  const timings = {
+    fast: { prefix_padding_ms: 120, silence_duration_ms: 450 },
+    balanced: { prefix_padding_ms: 180, silence_duration_ms: 850 },
+    accurate: { prefix_padding_ms: 260, silence_duration_ms: 1250 },
+  };
+  return {
+    type: 'server_vad',
+    ...(timings[normalizeTranslationMode(mode)] || timings.balanced),
+  };
+}
+
 function makeErrorId(prefix = 'ZT') {
   const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
   const random = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -107,6 +138,7 @@ ipcMain.handle('test-live-model', async (event, {
   apiKey,
   model,
   voice,
+  translationMode = 'balanced',
 }) => {
   const selectedModel = model || (provider === 'openai'
     ? 'gpt-realtime-2'
@@ -172,7 +204,7 @@ ipcMain.handle('test-live-model', async (event, {
               audio: {
                 input: {
                   format: { type: 'audio/pcm', rate: 16000 },
-                  turn_detection: { type: 'server_vad' },
+                  turn_detection: getOpenAiTurnDetection(translationMode),
                   transcription: { model: 'gpt-4o-mini-transcribe' },
                 },
                 output: {
@@ -197,13 +229,7 @@ ipcMain.handle('test-live-model', async (event, {
                 },
               },
             },
-            realtimeInputConfig: {
-              automaticActivityDetection: {
-                disabled: false,
-                prefixPaddingMs: 120,
-                silenceDurationMs: 450,
-              },
-            },
+            realtimeInputConfig: getRealtimeInputConfig(translationMode),
             inputAudioTranscription: {},
             outputAudioTranscription: {},
             systemInstruction: {
@@ -273,6 +299,7 @@ ipcMain.handle('live-open', (event, {
   voice,
   model,
   outputMode = 'audio',
+  translationMode = 'balanced',
 }) => {
   return new Promise((resolve) => {
     let ws;
@@ -305,7 +332,7 @@ ipcMain.handle('live-open', (event, {
           })
         : new WebSocket(url);
 
-      logEvent('live-open.create', { sessionId, provider, selectedModel, outputMode });
+      logEvent('live-open.create', { sessionId, provider, selectedModel, outputMode, translationMode: normalizeTranslationMode(translationMode) });
 
       openTimer = setTimeout(() => {
         try { ws?.close(); } catch {}
@@ -336,7 +363,7 @@ ipcMain.handle('live-open', (event, {
               audio: {
                 input: {
                   format: { type: 'audio/pcm', rate: 16000 },
-                  turn_detection: { type: 'server_vad' },
+                  turn_detection: getOpenAiTurnDetection(translationMode),
                   transcription: { model: 'gpt-4o-mini-transcribe' },
                 },
                 output: {
@@ -361,13 +388,7 @@ ipcMain.handle('live-open', (event, {
                 },
               },
             },
-            realtimeInputConfig: {
-              automaticActivityDetection: {
-                disabled: false,
-                prefixPaddingMs: 120,
-                silenceDurationMs: 450,
-              },
-            },
+            realtimeInputConfig: getRealtimeInputConfig(translationMode),
             inputAudioTranscription: {},
             outputAudioTranscription: {},
             systemInstruction: {

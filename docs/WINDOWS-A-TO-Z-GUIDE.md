@@ -94,6 +94,7 @@ Use this exact setup for Hindi to English and English to Hindi:
 | Buyer's audio source | `CABLE-A Output` |
 | Send translated English voice to | `CABLE-B Input` |
 | Play buyer Hindi voice to | Your headphones |
+| Translation timing | `Balanced Sentence Mode` |
 | Buyer's language | English |
 | Enable buyer Hindi captions | ON |
 | Also play buyer translated Hindi voice | ON |
@@ -129,9 +130,9 @@ In Google Meet audio settings:
 
 1. Start the translator app.
 2. Press `Start Live Translation`.
-3. Fast Streaming Realtime mode starts on both sides.
+3. Balanced Sentence Mode starts on both sides.
 4. Speak Hindi into your real microphone.
-5. Buyer should hear English voice in the meeting as quickly as possible.
+5. Buyer should hear clean English voice after each short natural phrase or sentence.
 6. Buyer speaks English.
 7. You should see Hindi captions on the buyer panel and hear translated Hindi voice in your headphones.
 

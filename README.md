@@ -67,6 +67,7 @@ In Settings:
 
 - Provider: choose `Google Gemini Live` or `OpenAI Realtime`.
 - Model: choose the best realtime speech/audio model available in your account.
+- Translation timing: use `Balanced Sentence Mode` for professional meetings.
 - API key: paste your own Gemini or OpenAI API key.
 - Voice: select the voice you prefer.
 
@@ -94,6 +95,7 @@ Use these settings in Zoom, Microsoft Teams, Google Meet, or any meeting app:
 | Buyer's audio source | `CABLE-A Output (VB-Audio Virtual Cable A)` |
 | Send translated English voice to | `CABLE-B Input (VB-Audio Virtual Cable B)` |
 | Play buyer Hindi voice to | Your headphones, for example `BH900 PRO` |
+| Translation timing | `Balanced Sentence Mode` |
 | Buyer Hindi captions | ON |
 | Buyer translated Hindi voice | ON if you want to hear buyer in Hindi |
 
@@ -126,6 +128,7 @@ Buyer speaks English
 - Do not commit your real API keys. Local `config.json` is ignored by git.
 - Use headphones to avoid echo.
 - Realtime speech-to-speech translation usually has a small delay, often around 1-3 seconds.
+- `Balanced Sentence Mode` waits for a short natural pause so translation is cleaner; use `Fast Streaming` only when lowest delay matters more than sentence quality.
 
 ## License
 

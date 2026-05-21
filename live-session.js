@@ -5,6 +5,7 @@ class LiveSession {
     apiKey,
     model,
     voice,
+    translationMode = 'balanced',
     outputMode,
     playAudio = true,
     outputDeviceId = '',
@@ -22,6 +23,7 @@ class LiveSession {
     this.apiKey = apiKey;
     this.model = model;
     this.voice = voice;
+    this.translationMode = translationMode;
     this.outputMode = outputMode;
     this.playAudio = playAudio;
     this.outputDeviceId = outputDeviceId;
@@ -55,6 +57,7 @@ class LiveSession {
       sessionId: this.sessionId,
       provider: this.provider,
       model: this.model,
+      translationMode: this.translationMode,
       outputMode: this.outputMode,
       playAudio: this.playAudio,
       tracks: micStream?.getAudioTracks?.().map((track) => ({ label: track.label, enabled: track.enabled, muted: track.muted })) || [],
@@ -66,6 +69,7 @@ class LiveSession {
       sessionId: this.sessionId,
       model: this.model,
       voice: this.voice,
+      translationMode: this.translationMode,
       outputMode: this.outputMode,
       systemPrompt: this.systemPrompt,
     });
