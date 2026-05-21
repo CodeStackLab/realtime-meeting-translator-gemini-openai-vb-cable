@@ -331,8 +331,12 @@ function buildMyTranslationPrompt() {
     'Your only job is translation. Do not answer questions. Do not continue the conversation. Do not add advice.',
     'If the speaker says "aap kaise ho", say only "How are you?"',
     'Translate fragmented speech into one clean, meaningful English sentence when possible.',
+    'Do not summarize or change intent; keep the sentence meaning accurate and complete.',
     'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',
     'Use simple professional English that sounds natural when spoken to a buyer.',
+    'Speak in a clear professional Indian male English style.',
+    'Never stream broken letters or joined words. Use complete words with normal spaces.',
+    'Prefer short sentence-wise output over word-by-word output.',
     'Never output markdown, analysis, labels, notes, "Awaiting input", "I understand", or internal reasoning.',
     'Output only the English translation.',
   ].join(' ');
@@ -345,7 +349,10 @@ function buildBuyerTranslationPrompt() {
     'Never answer the buyer. Never reply to questions. Never add advice or explanations.',
     'If the buyer says "How are you?", say only "Aap kaise ho?" Never say "Main theek hoon".',
     'Translate fragmented speech into one clean, meaningful Hindi/Hinglish sentence when possible.',
+    'Do not summarize or change intent; keep the sentence meaning accurate and complete.',
     'Use simple professional Hindi/Hinglish that an Indian caller can understand easily.',
+    'Never stream broken letters or joined words. Use complete words with normal spaces.',
+    'Prefer short sentence-wise output over word-by-word output.',
     'Preserve names, numbers, prices, account details, dates, promises, and business meaning exactly.',
     'Never output markdown, analysis, labels, notes, "Awaiting input", "I understand", or internal reasoning.',
     'Output only the Hindi translation.',
@@ -672,7 +679,9 @@ function updateTranscript(kind, text, append) {
 }
 
 function sanitizeCaptionChunk(value) {
-  let text = String(value || '').trim();
+  const original = String(value || '');
+  const leadingSpace = /^\s/.test(original) ? ' ' : '';
+  let text = original.trim();
   if (!text) return '';
   if (/\*\*(Awaiting|Interpreting|Analysis|Translation|Reasoning|Note)[^*]*\*\*/i.test(text)) return '';
   if (/^(Awaiting Further Input|Interpreting Fragmented Input|I understand|My analysis|The latest input)/i.test(text)) return '';
@@ -686,7 +695,7 @@ function sanitizeCaptionChunk(value) {
     .replace(/\bMy analysis[^.?!]*[.?!]?/gi, '')
     .trim();
   if (/^(therefore|however|because),?\s/i.test(text)) return '';
-  return text;
+  return `${leadingSpace}${text}`;
 }
 
 function mergeCaption(existing, incoming, append) {
@@ -703,15 +712,71 @@ function mergeCaption(existing, incoming, append) {
     && !/^[.,!?;:]/.test(text));
   const separator = needsSpace && !/\s$/.test(existing) ? ' ' : '';
   const merged = `${existing}${separator}${text}`;
-  return cleanCaptionText(merged).split(/\s+/).slice(-120).join(' ');
+  return cleanCaptionText(merged).split(/\s+/).slice(-140).join(' ');
 }
 
 function cleanCaptionText(text) {
-  return text
+  let cleaned = text
     .replace(/\s+([.,!?;:])/g, '$1')
     .replace(/([(\["'])\s+/g, '$1')
     .replace(/\s{2,}/g, ' ')
     .trim();
+  cleaned = repairJoinedEnglishWords(cleaned);
+  cleaned = repairJoinedHindiWords(cleaned);
+  cleaned = segmentHindiIfNeeded(cleaned);
+  return cleaned;
+}
+
+function repairJoinedEnglishWords(text) {
+  const replacements = [
+    [/\bhearme\b/gi, 'hear me'],
+    [/\bcanuseit\b/gi, 'can use it'],
+    [/\bcreatean\b/gi, 'create an'],
+    [/\baccountforyouandyoucanuseit\b/gi, 'account for you and you can use it'],
+    [/\baccountforyou\b/gi, 'account for you'],
+    [/\byoucanuseit\b/gi, 'you can use it'],
+    [/\bforyou\b/gi, 'for you'],
+    [/\byouandyou\b/gi, 'you and you'],
+    [/\bplease([a-z])/gi, 'please $1'],
+    [/\bhello([A-Z])/g, 'hello $1'],
+    [/\b(can|will|should|would|could|please|your|you|my|the|an|a|to|for|and)([A-Z][a-z])/g, '$1 $2'],
+  ];
+  return replacements.reduce((current, [pattern, replacement]) => current.replace(pattern, replacement), text);
+}
+
+function repairJoinedHindiWords(text) {
+  const replacements = [
+    [/हेलोआप/g, 'हेलो आप'],
+    [/कैसेहो/g, 'कैसे हो'],
+    [/कहामेरी/g, 'कहा मेरी'],
+    [/मेरीआवाज/g, 'मेरी आवाज'],
+    [/सुनपा/g, 'सुन पा'],
+    [/मैंआपसे/g, 'मैं आपसे'],
+    [/कहनाचाहता/g, 'कहना चाहता'],
+    [/आपकेलिए/g, 'आपके लिए'],
+    [/लिएएक/g, 'लिए एक'],
+    [/अकाउंटबना/g, 'अकाउंट बना'],
+    [/बनाऊंगा/g, 'बनाऊंगा'],
+    [/यूजकरिएगा/g, 'यूज करिएगा'],
+  ];
+  return replacements.reduce((current, [pattern, replacement]) => current.replace(pattern, replacement), text);
+}
+
+function segmentHindiIfNeeded(text) {
+  if (!/[\u0900-\u097F]{8,}/.test(text) || typeof Intl === 'undefined' || !Intl.Segmenter) {
+    return text;
+  }
+  try {
+    const segmenter = new Intl.Segmenter('hi', { granularity: 'word' });
+    return text.replace(/[\u0900-\u097F]{8,}/g, (chunk) => {
+      const words = Array.from(segmenter.segment(chunk))
+        .filter((part) => part.isWordLike)
+        .map((part) => part.segment);
+      return words.length > 1 ? words.join(' ') : chunk;
+    });
+  } catch {
+    return text;
+  }
 }
 
 function setTranscript(element, text) {

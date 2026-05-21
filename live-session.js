@@ -150,7 +150,7 @@ class LiveSession {
     this.silentGain = this.audioCtx.createGain();
     this.silentGain.gain.value = 0;
 
-    this.scriptNode = this.audioCtx.createScriptProcessor(1024, 1, 1);
+    this.scriptNode = this.audioCtx.createScriptProcessor(512, 1, 1);
     this.scriptNode.onaudioprocess = async (event) => {
       if (!this.isOpen) return;
       if (Date.now() < this.inputMutedUntil) return;

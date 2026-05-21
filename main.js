@@ -200,8 +200,8 @@ ipcMain.handle('test-live-model', async (event, {
             realtimeInputConfig: {
               automaticActivityDetection: {
                 disabled: false,
-                prefixPaddingMs: 200,
-                silenceDurationMs: 700,
+                prefixPaddingMs: 120,
+                silenceDurationMs: 450,
               },
             },
             inputAudioTranscription: {},
