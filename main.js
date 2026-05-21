@@ -372,7 +372,6 @@ ipcMain.handle('live-open', (event, {
               type: 'realtime',
               model: selectedModel,
               instructions: systemPrompt,
-              modalities: outputMode === 'audio' ? ['text', 'audio'] : ['text'],
               output_modalities: outputMode === 'audio' ? ['audio'] : ['text'],
               audio: {
                 input: {
