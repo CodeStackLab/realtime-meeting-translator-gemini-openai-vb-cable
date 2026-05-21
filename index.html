@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Realtime Hindi-English Zoom translator" />
+  <title>Zoom Realtime Translator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">ZT</div>
+      <div>
+        <div class="brand-name">Zoom Translator</div>
+        <div class="brand-subtitle">Two-way realtime voice and captions for Zoom calls.</div>
+      </div>
+    </div>
+
+    <div class="status-pill" id="statusPill">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Ready. Add API key, then Start Live Translation.</span>
+    </div>
+
+    <div class="top-actions">
+      <button class="ghost-btn" id="settingsBtn">Settings</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="control-strip">
+      <div class="route-card">
+        <div class="route-label">Your side</div>
+        <div class="route-title">Hindi speech</div>
+        <div class="route-meta" id="myMicStatus">Mic off</div>
+      </div>
+      <div class="start-cluster">
+        <button class="start-btn" id="startBtn">
+          <span id="startBtnText">Start Live Translation</span>
+        </button>
+        <div class="start-hint" id="startHint">Starts both directions together</div>
+      </div>
+      <div class="route-card buyer">
+        <div class="route-label">Buyer side</div>
+        <div class="route-title">English audio</div>
+        <div class="route-meta" id="buyerMicStatus">Listening off</div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <section class="live-column">
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">Outgoing to buyer</div>
+            <h2>Hindi to natural English voice</h2>
+          </div>
+          <span class="direction-chip">You -> Buyer</span>
+        </div>
+        <canvas class="waveform" id="myWaveform" width="520" height="70"></canvas>
+        <div class="transcript-grid">
+          <div class="transcript-box">
+            <div class="transcript-label">
+              <span>You said</span>
+              <span id="myOrigMeta"></span>
+            </div>
+            <div class="transcript-content hindi-text" id="myOrigText">
+              <span class="placeholder">Your Hindi speech appears here.</span>
+            </div>
+          </div>
+          <div class="transcript-box translated">
+            <div class="transcript-label">
+              <span>English voice sent to buyer</span>
+              <span id="myTransMeta"></span>
+            </div>
+            <div class="transcript-content" id="myTransText">
+              <span class="placeholder">Realtime English translation appears here.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="history-panel">
+        <div class="panel-head compact">
+          <div>
+            <div class="eyebrow">Last 5 turns</div>
+            <h2>Conversation list</h2>
+          </div>
+          <button class="small-btn" id="clearHistoryBtn">Clear</button>
+        </div>
+        <div class="history-list" id="conversationList">
+          <div class="empty-state">Start a conversation to see the latest 5 translations.</div>
+        </div>
+      </aside>
+
+      <section class="live-column buyer">
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">Incoming from buyer</div>
+            <h2>Buyer voice to Hindi captions and optional Hindi voice</h2>
+          </div>
+          <span class="direction-chip buyer">Buyer -> You</span>
+        </div>
+        <canvas class="waveform" id="buyerWaveform" width="520" height="70"></canvas>
+        <div class="transcript-grid">
+          <div class="transcript-box">
+            <div class="transcript-label">
+              <span>Buyer said</span>
+              <span id="buyerOrigMeta"></span>
+            </div>
+            <div class="transcript-content" id="buyerOrigText">
+              <span class="placeholder">Buyer speech appears here.</span>
+            </div>
+          </div>
+          <div class="transcript-box translated">
+            <div class="transcript-label">
+              <span>Meaningful Hindi caption</span>
+              <span id="buyerTransMeta"></span>
+            </div>
+            <div class="transcript-content hindi-text" id="buyerTransText">
+              <span class="placeholder">Buyer ka Hindi translation yahan dikhega.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <div>
+          <h2>Settings</h2>
+          <p>Choose a realtime speech provider, model, voice, and Zoom audio routes.</p>
+        </div>
+        <button class="close-btn" id="closeSettings">x</button>
+      </div>
+
+      <div class="settings-body">
+        <div class="settings-row two">
+          <label>
+            Provider
+            <select id="providerSelect">
+              <option value="gemini">Google Gemini Live</option>
+              <option value="openai">OpenAI Realtime</option>
+            </select>
+          </label>
+          <label>
+            Live speech model
+            <select id="modelSelect"></select>
+          </label>
+        </div>
+
+        <div class="settings-row two">
+          <label>
+            Gemini API key
+            <input type="password" id="geminiKeyInput" placeholder="AIza..." spellcheck="false" />
+          </label>
+          <label>
+            OpenAI API key
+            <input type="password" id="openaiKeyInput" placeholder="sk-..." spellcheck="false" />
+          </label>
+        </div>
+
+        <div class="link-row">
+          <a href="#" id="geminiKeyLink">Get Gemini key</a>
+          <a href="#" id="openaiKeyLink">OpenAI API keys</a>
+          <button class="small-btn" id="toggleKeys">Show keys</button>
+        </div>
+
+        <div class="settings-row two">
+          <label>
+            Your microphone
+            <select id="myMicSelect">
+              <option value="">Loading microphones...</option>
+            </select>
+          </label>
+          <label>
+            Buyer's audio source
+            <select id="buyerMicSelect">
+              <option value="">Loading audio sources...</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="settings-row two">
+          <label>
+            Send translated English voice to
+            <select id="translatedOutputSelect">
+              <option value="">System default output</option>
+            </select>
+          </label>
+          <div class="setting-note">
+            Choose CABLE Input here, then Zoom Microphone should be CABLE Output.
+          </div>
+        </div>
+
+        <div class="settings-row two">
+          <label>
+            Play buyer Hindi voice to
+            <select id="buyerVoiceOutputSelect">
+              <option value="">System default output</option>
+            </select>
+          </label>
+          <div class="setting-note">
+            Choose BH900 if you want to hear buyer translation in Hindi. Turn it off anytime below.
+          </div>
+        </div>
+
+        <div class="settings-row two">
+          <label>
+            Your English output voice
+            <select id="voiceSelect"></select>
+          </label>
+          <label>
+            Buyer's language
+            <select id="buyerLangSelect">
+              <option value="English">English</option>
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+              <option value="German">German</option>
+              <option value="Arabic">Arabic</option>
+              <option value="Chinese">Chinese (Mandarin)</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Portuguese">Portuguese</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="inline-check">
+          <input type="checkbox" id="monitorMyTranslation" />
+          Also play translated English voice in my headphones
+        </label>
+
+        <label class="inline-check">
+          <input type="checkbox" id="buyerCaptureEnabled" />
+          Enable buyer Hindi captions from selected buyer audio source
+        </label>
+
+        <label class="inline-check">
+          <input type="checkbox" id="playBuyerHindiVoice" />
+          Also play buyer translated Hindi voice for me
+        </label>
+
+        <div class="guide-box">
+          <h3>Cable A+B route checklist</h3>
+          <ol>
+            <li>Your microphone in this app should be your real mic.</li>
+            <li>Zoom Speaker should be CABLE-A Input. App Buyer audio source should be CABLE-A Output.</li>
+            <li>Buyer translated voice is disabled. You will hear the buyer's real voice only.</li>
+            <li>Set app translated output to CABLE-B Input. Set Zoom Microphone to CABLE-B Output.</li>
+            <li>This separates buyer audio from your AI output and prevents repeated captions/echo.</li>
+          </ol>
+        </div>
+
+        <button class="primary-btn" id="saveSettings">Save & Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="error-panel" id="errorPanel" hidden>
+    <div>
+      <div class="error-title">Latest error</div>
+      <div class="error-message" id="errorMessage"></div>
+      <div class="error-meta" id="errorMeta"></div>
+    </div>
+    <div class="error-actions">
+      <button class="small-btn" id="copyErrorBtn">Copy error</button>
+      <button class="small-btn" id="dismissErrorBtn">Dismiss</button>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="live-session.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

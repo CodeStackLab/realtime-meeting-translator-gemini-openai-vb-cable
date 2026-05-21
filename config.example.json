@@ -1,0 +1,19 @@
+{
+  "gemini_api_key": "",
+  "openai_api_key": "",
+  "provider": "gemini",
+  "model": "gemini-2.5-flash-native-audio-preview-12-2025",
+  "voice": "Puck",
+  "buyer_lang": "English",
+  "monitor_my_translation": false,
+  "buyer_capture_enabled": true,
+  "play_buyer_hindi_voice": true,
+  "my_mic_device": "Microphone (BH900 PRO)",
+  "buyer_mic_device": "CABLE-A Output (VB-Audio Virtual Cable A)",
+  "translated_output_device": "CABLE-B Input (VB-Audio Virtual Cable B)",
+  "buyer_voice_output_device": "Speakers (BH900 PRO)",
+  "zoom_microphone": "CABLE-B Output (VB-Audio Virtual Cable B)",
+  "meeting_speaker": "CABLE-A Input (VB-Audio Virtual Cable A)",
+  "buyer_audio_source": "CABLE-A Output (VB-Audio Virtual Cable A)",
+  "translated_output": "CABLE-B Input (VB-Audio Virtual Cable B)"
+}
