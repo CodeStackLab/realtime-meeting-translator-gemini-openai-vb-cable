@@ -4,6 +4,7 @@
   "provider": "gemini",
   "model": "gemini-3.1-flash-live-preview",
   "voice": "Puck",
+  "buyer_voice_style": "male",
   "translation_mode": "fast",
   "buyer_lang": "English",
   "monitor_my_translation": false,

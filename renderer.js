@@ -28,6 +28,7 @@ const REALTIME_MODELS = {
 };
 
 const FORCE_TWO_WAY_VOICE_MODE = true;
+const FORCE_OUTGOING_MALE_VOICE = true;
 
 const VOICES = {
   gemini: [
@@ -73,7 +74,7 @@ let selectedModel = REALTIME_MODELS.gemini[0].value;
 let geminiApiKey = '';
 let openaiApiKey = '';
 let selectedVoice = 'Puck';
-let buyerVoiceStyle = 'auto';
+let buyerVoiceStyle = 'male';
 let translationMode = 'fast';
 let buyerLang = 'English';
 let myMicDeviceId = '';
@@ -175,7 +176,8 @@ async function loadSettings() {
   geminiApiKey = cfg.gemini_api_key || localStorage.getItem('gemini_api_key') || '';
   openaiApiKey = cfg.openai_api_key || localStorage.getItem('openai_api_key') || '';
   selectedVoice = cfg.voice || cfg.my_voice_gemini || localStorage.getItem('voice') || (provider === 'openai' ? 'marin' : 'Puck');
-  buyerVoiceStyle = cfg.buyer_voice_style || localStorage.getItem('buyer_voice_style') || 'auto';
+  if (FORCE_OUTGOING_MALE_VOICE) selectedVoice = provider === 'openai' ? 'cedar' : 'Puck';
+  buyerVoiceStyle = cfg.buyer_voice_style || localStorage.getItem('buyer_voice_style') || 'male';
   translationMode = normalizeTranslationMode(cfg.translation_mode || localStorage.getItem('translation_mode') || 'fast');
   buyerLang = cfg.buyer_lang || localStorage.getItem('buyer_lang') || 'English';
   myMicDeviceId = cfg.my_mic_device || localStorage.getItem('my_mic_device') || '';
@@ -212,6 +214,10 @@ function saveSettings() {
   openaiApiKey = $('openaiKeyInput').value.trim();
   selectedVoice = $('voiceSelect').value;
   buyerVoiceStyle = $('buyerVoiceStyleSelect').value;
+  if (FORCE_OUTGOING_MALE_VOICE) {
+    selectedVoice = provider === 'openai' ? 'cedar' : 'Puck';
+    $('voiceSelect').value = selectedVoice;
+  }
   translationMode = normalizeTranslationMode($('translationModeSelect').value);
   buyerLang = $('buyerLangSelect').value;
   myMicDeviceId = $('myMicSelect').value;
@@ -351,7 +357,7 @@ function getBuyerHindiVoice() {
   }
   if (buyerVoiceStyle === 'male') return 'Puck';
   if (buyerVoiceStyle === 'female') return 'Aoede';
-  return 'Aoede';
+  return 'Puck';
 }
 
 function normalizeTranslationMode(mode) {
