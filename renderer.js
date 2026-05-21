@@ -380,6 +380,9 @@ function buildBuyerTranslationPrompt() {
     'TARGET LANGUAGE IS LOCKED: Output pure Hindi in Devanagari script only. Never output Urdu script, Roman Hindi, Hinglish, or English sentences on this channel.',
     getTimingInstruction(),
     'The buyer speaks English. Translate only what the buyer says.',
+    'If the audio is noise, echo, another language, your own previous translated voice, or unclear mixed-language speech, output nothing.',
+    'Never say or write "no translation", "कोई अनुवाद नहीं", "(no translation)", or any placeholder. Silence is better than a placeholder.',
+    'Do not invent buyer sentences from unclear audio. Translate only clear English words spoken by the buyer.',
     'Never answer the buyer. Never reply to questions. Never add advice or explanations.',
     'If the buyer says "How are you?", say only "\u0906\u092a \u0915\u0948\u0938\u0947 \u0939\u0948\u0902?" Never say "\u092e\u0948\u0902 \u0920\u0940\u0915 \u0939\u0942\u0902".',
     getChunkingInstruction(),
@@ -709,6 +712,7 @@ function updateTranscript(kind, text, append) {
     buyerOrigMeta.textContent = now;
     flashBox(buyerOrigText);
   } else if (kind === 'buyerTranslation') {
+    if (!isUsefulHindiCaption(cleanText)) return;
     buyerTranslationCaption = mergeCaption(buyerTranslationCaption, cleanText, append);
     currentBuyer.translated = buyerTranslationCaption;
     setTranscript(buyerTransText, buyerTranslationCaption);
@@ -717,16 +721,30 @@ function updateTranscript(kind, text, append) {
   }
 }
 
+function isUsefulHindiCaption(text) {
+  const value = String(text || '').trim();
+  if (!value) return false;
+  if (/^\W+$/.test(value)) return false;
+  if (/(no translation|कोई अनुवाद नहीं|अनुवाद नहीं|unclear audio)/i.test(value)) return false;
+  const devanagari = (value.match(/[\u0900-\u097F]/g) || []).length;
+  const letters = (value.match(/[\p{L}]/gu) || []).length;
+  return devanagari >= 2 || letters === 0;
+}
+
 function sanitizeCaptionChunk(value) {
   const original = String(value || '');
   const leadingSpace = /^\s/.test(original) ? ' ' : '';
   let text = original.trim();
   if (!text) return '';
+  if (/^\(?\s*(no translation|कोई अनुवाद नहीं|अनुवाद नहीं|no clear speech|unclear audio)\s*\)?$/i.test(text)) return '';
+  if (/^\(?\s*कोई अनुवाद नहीं\s*\)?$/i.test(text)) return '';
   if (/\*\*(Awaiting|Interpreting|Analysis|Translation|Reasoning|Note)[^*]*\*\*/i.test(text)) return '';
   if (/^(Awaiting Further Input|Interpreting Fragmented Input|I understand|My analysis|The latest input)/i.test(text)) return '';
   text = text
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/<noise>/gi, '')
+    .replace(/\(?\s*कोई अनुवाद नहीं\s*\)?/gi, '')
+    .replace(/\(?\s*no translation\s*\)?/gi, '')
     .replace(/\bAwaiting Further Input\b/gi, '')
     .replace(/\bInterpreting Fragmented Input\b/gi, '')
     .replace(/\bI understand\b[^.?!]*[.?!]?/gi, '')
