@@ -380,9 +380,11 @@ function buildBuyerTranslationPrompt() {
     'TARGET LANGUAGE IS LOCKED: Output pure Hindi in Devanagari script only. Never output Urdu script, Roman Hindi, Hinglish, or English sentences on this channel.',
     getTimingInstruction(),
     'The buyer speaks English. Translate only what the buyer says.',
-    'If the audio is noise, echo, another language, your own previous translated voice, or unclear mixed-language speech, output nothing.',
+    'The speech recognizer may write English words phonetically in Devanagari, such as "हाउ आर यू", "कैन यू हियर मी", or "आई एम फाइन". Treat these as English buyer speech and translate them to pure Hindi.',
+    'If the buyer mixes a few Hindi filler words with English, translate the buyer meaning to pure Hindi instead of dropping it.',
+    'If the audio is only noise, echo, your own previous translated voice, or completely unclear speech, output nothing.',
     'Never say or write "no translation", "कोई अनुवाद नहीं", "(no translation)", or any placeholder. Silence is better than a placeholder.',
-    'Do not invent buyer sentences from unclear audio. Translate only clear English words spoken by the buyer.',
+    'Do not invent buyer sentences from unclear audio. Translate clear English, Indian-English, or phonetic-English words spoken by the buyer.',
     'Never answer the buyer. Never reply to questions. Never add advice or explanations.',
     'If the buyer says "How are you?", say only "\u0906\u092a \u0915\u0948\u0938\u0947 \u0939\u0948\u0902?" Never say "\u092e\u0948\u0902 \u0920\u0940\u0915 \u0939\u0942\u0902".',
     getChunkingInstruction(),
@@ -693,6 +695,12 @@ function updateTranscript(kind, text, append) {
   const now = new Date().toLocaleTimeString();
   const cleanText = sanitizeCaptionChunk(text);
   if (!cleanText) return;
+  window.electronAPI.logEvent('renderer.transcript.cleaned', {
+    kind,
+    append: Boolean(append),
+    chars: cleanText.length,
+    preview: cleanText.slice(0, 80),
+  });
   if (kind === 'myOriginal') {
     myOriginalCaption = mergeCaption(myOriginalCaption, cleanText, append);
     currentMy.original = myOriginalCaption;
