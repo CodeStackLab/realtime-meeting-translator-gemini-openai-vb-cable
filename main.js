@@ -360,6 +360,8 @@ ipcMain.handle('live-open', (event, {
       provider,
       manualActivity: usesManualActivity(provider, translationMode),
       activityOpen: false,
+      openAiPendingAudio: false,
+      openAiResponseActive: false,
     };
 
     ws.on('open', () => {
@@ -436,6 +438,10 @@ ipcMain.handle('live-open', (event, {
             finish({ success: true });
             return;
           }
+          if (msg.type === 'response.created') {
+            const session = liveSessions[sessionId];
+            if (session) session.openAiResponseActive = true;
+          }
           if ((msg.type === 'response.audio.delta' || msg.type === 'response.output_audio.delta') && msg.delta) {
             logEvent('live-audio.out', { sessionId, bytesBase64: msg.delta.length });
             mainWindow.webContents.send('live-audio', {
@@ -459,9 +465,20 @@ ipcMain.handle('live-open', (event, {
             mainWindow.webContents.send('live-input-transcript', { sessionId, text: msg.transcript });
           }
           if (msg.type === 'response.done') {
+            const session = liveSessions[sessionId];
+            if (session) session.openAiResponseActive = false;
             mainWindow.webContents.send('live-turn-complete', { sessionId });
           }
+          if (msg.type === 'input_audio_buffer.committed') {
+            const session = liveSessions[sessionId];
+            if (session) session.openAiPendingAudio = false;
+          }
           if (msg.type === 'error') {
+            const session = liveSessions[sessionId];
+            if (session) {
+              session.openAiResponseActive = false;
+              if (/buffer|audio/i.test(msg.error?.message || '')) session.openAiPendingAudio = false;
+            }
             if (!setupComplete) finish({ success: false, error: msg.error?.message || 'OpenAI realtime error' });
             mainWindow.webContents.send('live-error', {
               sessionId,
@@ -585,6 +602,7 @@ ipcMain.handle('live-send-audio', (event, { sessionId, audioBase64 }) => {
     }
     if (session.provider === 'openai') {
       ws.send(JSON.stringify({ type: 'input_audio_buffer.append', audio: audioBase64 }));
+      session.openAiPendingAudio = true;
     } else {
       if (session.manualActivity && !session.activityOpen) {
         ws.send(JSON.stringify({ realtimeInput: { activityStart: {} } }));
@@ -611,8 +629,19 @@ ipcMain.handle('live-send-turn-complete', (event, { sessionId }) => {
   const session = liveSessions[sessionId];
   const ws = session?.ws;
   if (!ws || ws.readyState !== WebSocket.OPEN) return { success: false, error: 'No session' };
-  if (session.provider !== 'gemini') return { success: true };
   try {
+    if (session.provider === 'openai') {
+      if (!session.openAiPendingAudio || session.openAiResponseActive) return { success: true };
+      ws.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+      ws.send(JSON.stringify({ type: 'response.create' }));
+      session.openAiPendingAudio = false;
+      session.openAiLastCommitAt = Date.now();
+      logEvent('live-send-turn-complete.openai', { sessionId });
+      return { success: true };
+    }
+
+    if (session.provider !== 'gemini') return { success: true };
+
     if (session.manualActivity) {
       if (!session.activityOpen) return { success: true };
       ws.send(JSON.stringify({ realtimeInput: { activityEnd: {} } }));
