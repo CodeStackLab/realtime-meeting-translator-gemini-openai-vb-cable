@@ -1,8 +1,12 @@
 const REALTIME_MODELS = {
   gemini: [
     {
+      value: 'gemini-3.1-flash-live-preview',
+      label: 'Gemini 3.1 Flash Live preview - fastest/newest audio',
+    },
+    {
       value: 'gemini-2.5-flash-native-audio-preview-12-2025',
-      label: 'Gemini 2.5 Flash Native Audio 12-2025 - recommended/free tier',
+      label: 'Gemini 2.5 Flash Native Audio 12-2025 - stable native audio',
     },
     {
       value: 'gemini-2.5-flash-native-audio-latest',
@@ -11,10 +15,6 @@ const REALTIME_MODELS = {
     {
       value: 'gemini-2.5-flash-native-audio-preview-09-2025',
       label: 'Gemini 2.5 Flash Native Audio 09-2025',
-    },
-    {
-      value: 'gemini-3.1-flash-live-preview',
-      label: 'Gemini 3.1 Flash Live preview',
     },
   ],
   openai: [

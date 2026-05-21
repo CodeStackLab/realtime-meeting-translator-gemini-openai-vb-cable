@@ -2,7 +2,7 @@
   "gemini_api_key": "",
   "openai_api_key": "",
   "provider": "gemini",
-  "model": "gemini-2.5-flash-native-audio-preview-12-2025",
+  "model": "gemini-3.1-flash-live-preview",
   "voice": "Puck",
   "buyer_lang": "English",
   "monitor_my_translation": false,

@@ -7,6 +7,8 @@ const liveSessions = {};
 const logPath = path.join(__dirname, 'app-debug.log');
 let mainWindow;
 
+const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-live-preview';
+
 function makeErrorId(prefix = 'ZT') {
   const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
   const random = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -108,7 +110,7 @@ ipcMain.handle('test-live-model', async (event, {
 }) => {
   const selectedModel = model || (provider === 'openai'
     ? 'gpt-realtime-2'
-    : 'gemini-2.5-flash-native-audio-preview-12-2025');
+    : DEFAULT_GEMINI_MODEL);
   const errorId = makeErrorId('ZT-TEST');
 
   if (!apiKey) {
@@ -188,10 +190,7 @@ ipcMain.handle('test-live-model', async (event, {
             model: `models/${selectedModel}`,
             generationConfig: {
               responseModalities: ['AUDIO'],
-              thinkingConfig: {
-                thinkingBudget: 0,
-                includeThoughts: false,
-              },
+              thinkingConfig: getGeminiThinkingConfig(selectedModel),
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: { voiceName: voice || 'Puck' },
@@ -280,7 +279,7 @@ ipcMain.handle('live-open', (event, {
     let openTimer;
     let selectedModel = model || (provider === 'openai'
       ? 'gpt-realtime'
-      : 'gemini-2.5-flash-native-audio-preview-12-2025');
+      : DEFAULT_GEMINI_MODEL);
     let setupComplete = false;
     let settled = false;
 
@@ -355,10 +354,7 @@ ipcMain.handle('live-open', (event, {
             model: `models/${selectedModel}`,
             generationConfig: {
               responseModalities: outputMode === 'audio' ? ['AUDIO'] : ['TEXT'],
-              thinkingConfig: {
-                thinkingBudget: 0,
-                includeThoughts: false,
-              },
+              thinkingConfig: getGeminiThinkingConfig(selectedModel),
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: { voiceName: voice || 'Puck' },
@@ -519,6 +515,16 @@ function rawCloseReason(reason) {
   if (!reason) return '';
   if (Buffer.isBuffer(reason)) return reason.toString('utf8');
   return String(reason);
+}
+
+function getGeminiThinkingConfig(model) {
+  if (/gemini-3/i.test(model || '')) {
+    return { thinkingLevel: 'minimal' };
+  }
+  return {
+    thinkingBudget: 0,
+    includeThoughts: false,
+  };
 }
 
 ipcMain.handle('live-send-audio', (event, { sessionId, audioBase64 }) => {

@@ -76,7 +76,7 @@ Then select:
 
 Recommended models:
 
-- Gemini: `gemini-2.5-flash-native-audio-preview-12-2025`
+- Gemini: `gemini-3.1-flash-live-preview`; fallback `gemini-2.5-flash-native-audio-preview-12-2025`
 - OpenAI in this app: `gpt-realtime-2`, then `gpt-realtime-1.5`, then `gpt-realtime-mini`
 - OpenAI dedicated live translation endpoint: `gpt-realtime-translate`
 
