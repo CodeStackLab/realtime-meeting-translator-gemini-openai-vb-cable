@@ -1,0 +1,22 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="54" fill="#08111F"/>
+  <rect x="18" y="18" width="220" height="220" rx="42" fill="url(#bg)" stroke="#2F415F" stroke-width="2"/>
+  <path d="M62 91C62 77.7452 72.7452 67 86 67H104C117.255 67 128 77.7452 128 91V126C128 139.255 117.255 150 104 150H86C72.7452 150 62 139.255 62 126V91Z" fill="#42A5FF"/>
+  <path d="M82 91C82 84.3726 87.3726 79 94 79H96C102.627 79 108 84.3726 108 91V126C108 132.627 102.627 138 96 138H94C87.3726 138 82 132.627 82 126V91Z" fill="#08111F" fill-opacity="0.32"/>
+  <path d="M48 119C48 149.928 70.3858 176 100 176C129.614 176 152 149.928 152 119" stroke="#8ED1FF" stroke-width="12" stroke-linecap="round"/>
+  <path d="M100 176V202" stroke="#8ED1FF" stroke-width="12" stroke-linecap="round"/>
+  <path d="M73 202H127" stroke="#8ED1FF" stroke-width="12" stroke-linecap="round"/>
+  <path d="M146 84H197" stroke="#2DD4BF" stroke-width="12" stroke-linecap="round"/>
+  <path d="M177 61L200 84L177 107" stroke="#2DD4BF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M195 141H144" stroke="#F59E0B" stroke-width="12" stroke-linecap="round"/>
+  <path d="M164 118L141 141L164 164" stroke="#F59E0B" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M154 203C154 194.716 160.716 188 169 188H195C203.284 188 210 194.716 210 203V205C210 213.284 203.284 220 195 220H169C160.716 220 154 213.284 154 205V203Z" fill="#151D2E" stroke="#2F415F" stroke-width="2"/>
+  <path d="M171 207H193" stroke="#EEF3FB" stroke-width="8" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="bg" x1="36" y1="33" x2="224" y2="226" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101B31"/>
+      <stop offset="0.55" stop-color="#0B1425"/>
+      <stop offset="1" stop-color="#0C1F2A"/>
+    </linearGradient>
+  </defs>
+</svg>

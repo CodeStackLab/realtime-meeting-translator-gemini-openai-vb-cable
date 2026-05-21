@@ -1,5 +1,6 @@
 {
-  "name": "all-meeting-speech-to-speech-voice-translation-captions-gemini-openai-vb-cable",
+  "name": "realtime-meeting-translator",
+  "productName": "Realtime Meeting Translator",
   "version": "1.0.0",
   "description": "Real-time speech-to-speech voice translation with captions for Zoom, Microsoft Teams, Google Meet, and other meetings using Gemini, OpenAI, and VB-Cable A+B.",
   "main": "main.js",
@@ -16,6 +17,6 @@
     "electron": "^34.0.0"
   },
   "keywords": ["zoom", "teams", "google-meet", "translation", "speech-to-speech", "gemini", "hindi", "english", "virtual-audio-cable"],
-  "author": "All Meeting Voice Translator",
+  "author": "Realtime Meeting Translator",
   "license": "MIT"
 }
