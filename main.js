@@ -193,7 +193,6 @@ ipcMain.handle('test-live-model', async (event, {
         ? new WebSocket(url, {
             headers: {
               Authorization: `Bearer ${apiKey}`,
-              'OpenAI-Beta': 'realtime=v1',
             },
           })
         : new WebSocket(url);
@@ -338,7 +337,6 @@ ipcMain.handle('live-open', (event, {
         ? new WebSocket(url, {
             headers: {
               Authorization: `Bearer ${apiKey}`,
-              'OpenAI-Beta': 'realtime=v1',
             },
           })
         : new WebSocket(url);
