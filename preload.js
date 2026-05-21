@@ -29,4 +29,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   writeConfig:      (d) => ipcRenderer.invoke('write-config', d),
   logEvent:         (label, data = {}) => ipcRenderer.invoke('log-event', { label, data }),
   readDebugLogTail: (p) => ipcRenderer.invoke('read-debug-log-tail', p),
+  testLiveModel:    (p) => ipcRenderer.invoke('test-live-model', p),
 });

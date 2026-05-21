@@ -99,6 +99,150 @@ ipcMain.handle('read-debug-log-tail', (event, { lines = 120 } = {}) => {
   }
 });
 
+ipcMain.handle('test-live-model', async (event, {
+  provider = 'gemini',
+  apiKey,
+  model,
+  voice,
+}) => {
+  const selectedModel = model || (provider === 'openai'
+    ? 'gpt-realtime-2'
+    : 'gemini-2.5-flash-native-audio-preview-12-2025');
+  const errorId = makeErrorId('ZT-TEST');
+
+  if (!apiKey) {
+    return { success: false, errorId, error: 'Missing API key.' };
+  }
+
+  logEvent('test-live-model.start', { errorId, provider, selectedModel });
+
+  return new Promise((resolve) => {
+    let settled = false;
+    let ws;
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try { ws?.close(); } catch {}
+      logEvent('test-live-model.finish', {
+        errorId,
+        provider,
+        selectedModel,
+        success: result.success,
+        error: result.error,
+      });
+      resolve({ errorId, provider, model: selectedModel, ...result });
+    };
+
+    const timer = setTimeout(() => {
+      finish({ success: false, error: 'Model access test timed out.' });
+    }, 15000);
+
+    try {
+      const url = provider === 'openai'
+        ? `wss://api.openai.com/v1/realtime?model=${encodeURIComponent(selectedModel)}`
+        : `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
+
+      ws = provider === 'openai'
+        ? new WebSocket(url, {
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              'OpenAI-Beta': 'realtime=v1',
+            },
+          })
+        : new WebSocket(url);
+    } catch (e) {
+      finish({ success: false, error: e.message || 'Could not create model test connection.' });
+      return;
+    }
+
+    ws.on('open', () => {
+      try {
+        if (provider === 'openai') {
+          ws.send(JSON.stringify({
+            type: 'session.update',
+            session: {
+              type: 'realtime',
+              model: selectedModel,
+              instructions: 'Model access test. Do not answer.',
+              output_modalities: ['audio'],
+              audio: {
+                input: {
+                  format: { type: 'audio/pcm', rate: 16000 },
+                  turn_detection: { type: 'server_vad' },
+                  transcription: { model: 'gpt-4o-mini-transcribe' },
+                },
+                output: {
+                  format: { type: 'audio/pcm', rate: 24000 },
+                  voice: voice || 'marin',
+                },
+              },
+            },
+          }));
+          return;
+        }
+
+        ws.send(JSON.stringify({
+          setup: {
+            model: `models/${selectedModel}`,
+            generationConfig: {
+              responseModalities: ['AUDIO'],
+              thinkingConfig: {
+                thinkingBudget: 0,
+                includeThoughts: false,
+              },
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: { voiceName: voice || 'Puck' },
+                },
+              },
+            },
+            realtimeInputConfig: {
+              automaticActivityDetection: {
+                disabled: false,
+                prefixPaddingMs: 200,
+                silenceDurationMs: 700,
+              },
+            },
+            inputAudioTranscription: {},
+            outputAudioTranscription: {},
+            systemInstruction: {
+              parts: [{ text: 'Model access test. Translate only.' }],
+            },
+          },
+        }));
+      } catch (e) {
+        finish({ success: false, error: e.message || 'Could not send model test setup.' });
+      }
+    });
+
+    ws.on('message', (rawData) => {
+      try {
+        const msg = JSON.parse(rawData.toString());
+        if (provider === 'openai') {
+          if (msg.type === 'session.updated') finish({ success: true });
+          if (msg.type === 'error') finish({ success: false, error: msg.error?.message || 'OpenAI model test failed.' });
+          return;
+        }
+        if (msg.setupComplete) finish({ success: true });
+        if (msg.error) finish({ success: false, error: msg.error.message || msg.error.status || 'Gemini model test failed.' });
+      } catch {
+        finish({ success: false, error: 'Could not parse model test response.' });
+      }
+    });
+
+    ws.on('error', (err) => {
+      finish({ success: false, error: err.message || 'Realtime WebSocket error.' });
+    });
+
+    ws.on('close', (code, reasonBuffer) => {
+      if (settled) return;
+      const reason = rawCloseReason(reasonBuffer);
+      finish({ success: false, error: reason || `Connection closed before setup completed (code ${code}).` });
+    });
+  });
+});
+
 ipcMain.handle('save-conversation', async (event, { format, data }) => {
   const ext = format === 'csv' ? 'csv' : 'txt';
   const filters = format === 'csv'

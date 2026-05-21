@@ -133,6 +133,7 @@ function setupEvents() {
     e.preventDefault();
     window.electronAPI.openExternal({ type: 'url', url: 'https://platform.openai.com/api-keys' });
   });
+  $('testModelBtn').addEventListener('click', testSelectedModelAccess);
   $('copyErrorBtn').addEventListener('click', copyLatestError);
   $('dismissErrorBtn').addEventListener('click', () => {
     errorPanel.hidden = true;
@@ -237,6 +238,48 @@ function saveSettings() {
   closeSettings();
   showToast('Settings saved', 'success');
   setStatus('idle', getActiveApiKey() ? 'Ready. Press Start Live Translation.' : 'Add API key in Settings.');
+}
+
+async function testSelectedModelAccess() {
+  provider = $('providerSelect').value;
+  selectedModel = $('modelSelect').value;
+  geminiApiKey = $('geminiKeyInput').value.trim();
+  openaiApiKey = $('openaiKeyInput').value.trim();
+  selectedVoice = $('voiceSelect').value;
+  const apiKey = getActiveApiKey();
+
+  if (!apiKey) {
+    showToast(`Add ${provider === 'openai' ? 'OpenAI' : 'Gemini'} API key first.`, 'error');
+    return;
+  }
+
+  $('testModelBtn').disabled = true;
+  $('testModelBtn').textContent = 'Testing...';
+  setStatus('busy', `Testing ${selectedModel} access...`);
+
+  try {
+    const res = await window.electronAPI.testLiveModel({
+      provider,
+      apiKey,
+      model: selectedModel,
+      voice: selectedVoice,
+    });
+    if (res.success) {
+      showToast(`${res.model} is available for your API key.`, 'success');
+      setStatus('idle', `Model OK: ${res.model}`);
+      return;
+    }
+    const err = new Error(res.error || 'Model access test failed.');
+    err.errorId = res.errorId;
+    await showAppError('Model access test failed', err);
+    setStatus('error', `Model test failed: ${res.model}`);
+  } catch (e) {
+    await showAppError('Model access test failed', e);
+    setStatus('error', e.message || 'Model access test failed');
+  } finally {
+    $('testModelBtn').disabled = false;
+    $('testModelBtn').textContent = 'Test model access';
+  }
 }
 
 function closeSettings() {
