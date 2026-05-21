@@ -41,7 +41,7 @@ The app filters common internal-analysis text and removes the conversation histo
 
 ## Realtime Feels Slow Or Broken Into Words
 
-Use the default `Balanced Sentence Mode` for professional meetings. It waits for a short natural pause, then sends one cleaner sentence. If you need the absolute lowest delay, switch to `Fast Streaming`; if words are joining together or sentences are unclear, switch to `Accurate Sentence Mode`.
+Use the default `Ultra Realtime Streaming` when the buyer must hear translated voice while you keep speaking. It sends short translated chunks during long speech. If words are joining together or sentences are unclear, switch to `Balanced Sentence Mode` or `Accurate Sentence Mode`.
 
 - Gemini model: `gemini-3.1-flash-live-preview`
 - Good internet connection

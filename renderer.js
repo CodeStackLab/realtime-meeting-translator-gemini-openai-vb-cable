@@ -53,7 +53,7 @@ let geminiApiKey = '';
 let openaiApiKey = '';
 let selectedVoice = 'Puck';
 let buyerVoiceStyle = 'auto';
-let translationMode = 'balanced';
+let translationMode = 'fast';
 let buyerLang = 'English';
 let myMicDeviceId = '';
 let buyerMicDeviceId = '';
@@ -155,7 +155,7 @@ async function loadSettings() {
   openaiApiKey = cfg.openai_api_key || localStorage.getItem('openai_api_key') || '';
   selectedVoice = cfg.voice || cfg.my_voice_gemini || localStorage.getItem('voice') || (provider === 'openai' ? 'marin' : 'Puck');
   buyerVoiceStyle = cfg.buyer_voice_style || localStorage.getItem('buyer_voice_style') || 'auto';
-  translationMode = normalizeTranslationMode(cfg.translation_mode || localStorage.getItem('translation_mode') || 'balanced');
+  translationMode = normalizeTranslationMode(cfg.translation_mode || localStorage.getItem('translation_mode') || 'fast');
   buyerLang = cfg.buyer_lang || localStorage.getItem('buyer_lang') || 'English';
   myMicDeviceId = cfg.my_mic_device || localStorage.getItem('my_mic_device') || '';
   buyerMicDeviceId = cfg.buyer_mic_device || localStorage.getItem('buyer_mic_device') || '';
@@ -334,18 +334,18 @@ function getBuyerHindiVoice() {
 }
 
 function normalizeTranslationMode(mode) {
-  return ['fast', 'balanced', 'accurate'].includes(mode) ? mode : 'balanced';
+  return ['fast', 'balanced', 'accurate'].includes(mode) ? mode : 'fast';
 }
 
 function getTranslationModeLabel() {
-  if (translationMode === 'fast') return 'Fast Streaming';
+  if (translationMode === 'fast') return 'Ultra Realtime Streaming';
   if (translationMode === 'accurate') return 'Accurate Sentence Mode';
   return 'Balanced Sentence Mode';
 }
 
 function getTimingInstruction() {
   if (translationMode === 'fast') {
-    return 'Timing mode: Fast Streaming. Translate as soon as a phrase is clear, but still use complete words and normal spaces.';
+    return 'Timing mode: Ultra Realtime Streaming. Start translating while the speaker is still talking. Output short natural phrase chunks immediately, but still use complete words and normal spaces.';
   }
   if (translationMode === 'accurate') {
     return 'Timing mode: Accurate Sentence Mode. Wait for a complete sentence or clear natural pause, then output one polished sentence. A little delay is acceptable for clarity.';

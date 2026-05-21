@@ -8,31 +8,37 @@ const logPath = path.join(__dirname, 'app-debug.log');
 let mainWindow;
 
 const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-live-preview';
+const appIconPath = fs.existsSync(path.join(__dirname, 'assets', 'icon.ico'))
+  ? path.join(__dirname, 'assets', 'icon.ico')
+  : path.join(__dirname, 'assets', 'icon.svg');
 
 function normalizeTranslationMode(mode) {
-  return ['fast', 'balanced', 'accurate'].includes(mode) ? mode : 'balanced';
+  return ['fast', 'balanced', 'accurate'].includes(mode) ? mode : 'fast';
 }
 
-function getRealtimeInputConfig(mode = 'balanced') {
+function getRealtimeInputConfig(mode = 'fast') {
   const timings = {
-    fast: { prefixPaddingMs: 120, silenceDurationMs: 450 },
-    balanced: { prefixPaddingMs: 180, silenceDurationMs: 850 },
-    accurate: { prefixPaddingMs: 260, silenceDurationMs: 1250 },
+    fast: { prefixPaddingMs: 60, silenceDurationMs: 100 },
+    balanced: { prefixPaddingMs: 140, silenceDurationMs: 350 },
+    accurate: { prefixPaddingMs: 220, silenceDurationMs: 800 },
   };
   const selected = timings[normalizeTranslationMode(mode)];
   return {
     automaticActivityDetection: {
       disabled: false,
+      startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH',
+      endOfSpeechSensitivity: 'END_SENSITIVITY_HIGH',
       ...selected,
     },
+    turnCoverage: 'TURN_INCLUDES_ONLY_ACTIVITY',
   };
 }
 
-function getOpenAiTurnDetection(mode = 'balanced') {
+function getOpenAiTurnDetection(mode = 'fast') {
   const timings = {
-    fast: { prefix_padding_ms: 120, silence_duration_ms: 450 },
-    balanced: { prefix_padding_ms: 180, silence_duration_ms: 850 },
-    accurate: { prefix_padding_ms: 260, silence_duration_ms: 1250 },
+    fast: { prefix_padding_ms: 60, silence_duration_ms: 100 },
+    balanced: { prefix_padding_ms: 140, silence_duration_ms: 350 },
+    accurate: { prefix_padding_ms: 220, silence_duration_ms: 800 },
   };
   return {
     type: 'server_vad',
@@ -75,7 +81,7 @@ function createWindow() {
       webSecurity: false,
     },
     title: 'Realtime Meeting Translator',
-    icon: path.join(__dirname, 'assets', 'icon.svg'),
+    icon: appIconPath,
     backgroundColor: '#0b1020',
     show: false,
     titleBarStyle: 'hiddenInset',
@@ -138,7 +144,7 @@ ipcMain.handle('test-live-model', async (event, {
   apiKey,
   model,
   voice,
-  translationMode = 'balanced',
+  translationMode = 'fast',
 }) => {
   const selectedModel = model || (provider === 'openai'
     ? 'gpt-realtime-2'
@@ -299,7 +305,7 @@ ipcMain.handle('live-open', (event, {
   voice,
   model,
   outputMode = 'audio',
-  translationMode = 'balanced',
+  translationMode = 'fast',
 }) => {
   return new Promise((resolve) => {
     let ws;

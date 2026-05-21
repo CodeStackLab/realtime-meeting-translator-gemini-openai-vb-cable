@@ -5,7 +5,7 @@ class LiveSession {
     apiKey,
     model,
     voice,
-    translationMode = 'balanced',
+    translationMode = 'fast',
     outputMode,
     playAudio = true,
     outputDeviceId = '',
@@ -49,6 +49,9 @@ class LiveSession {
     this.lastTurnCompleteAt = 0;
     this.activeSourceNode = null;
     this.inputMutedUntil = 0;
+    this.voiceActiveSince = 0;
+    this.lastVoiceAt = 0;
+    this.lastSoftFlushAt = 0;
   }
 
   async open(micStream) {
@@ -174,6 +177,7 @@ class LiveSession {
         audioBase64: base64,
       });
       this._trackInputLevel(rms);
+      await this._maybeSoftFlush(rms);
     };
 
     src.connect(this.scriptNode);
@@ -193,6 +197,35 @@ class LiveSession {
       return;
     }
     this.silenceFrames += 1;
+  }
+
+  async _maybeSoftFlush(rms) {
+    if (this.provider !== 'gemini' || this.translationMode !== 'fast') return;
+
+    const now = Date.now();
+    const speaking = rms > 0.018;
+    if (!speaking) {
+      if (now - this.lastVoiceAt > 260) this.voiceActiveSince = 0;
+      return;
+    }
+
+    this.lastVoiceAt = now;
+    if (!this.voiceActiveSince) {
+      this.voiceActiveSince = now;
+      this.lastSoftFlushAt = now;
+      return;
+    }
+
+    if (now - this.voiceActiveSince < 650) return;
+    if (now - this.lastSoftFlushAt < 950) return;
+
+    this.lastSoftFlushAt = now;
+    window.electronAPI.logEvent('renderer.soft-flush', {
+      sessionId: this.sessionId,
+      mode: this.translationMode,
+      activeMs: now - this.voiceActiveSince,
+    });
+    await window.electronAPI.liveSendTurnComplete({ sessionId: this.sessionId });
   }
 
   _floatToPcm16Base64(float32) {

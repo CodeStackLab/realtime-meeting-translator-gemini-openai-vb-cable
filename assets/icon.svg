@@ -1,22 +1,22 @@
 <svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="256" height="256" rx="54" fill="#08111F"/>
-  <rect x="18" y="18" width="220" height="220" rx="42" fill="url(#bg)" stroke="#2F415F" stroke-width="2"/>
-  <path d="M62 91C62 77.7452 72.7452 67 86 67H104C117.255 67 128 77.7452 128 91V126C128 139.255 117.255 150 104 150H86C72.7452 150 62 139.255 62 126V91Z" fill="#42A5FF"/>
-  <path d="M82 91C82 84.3726 87.3726 79 94 79H96C102.627 79 108 84.3726 108 91V126C108 132.627 102.627 138 96 138H94C87.3726 138 82 132.627 82 126V91Z" fill="#08111F" fill-opacity="0.32"/>
-  <path d="M48 119C48 149.928 70.3858 176 100 176C129.614 176 152 149.928 152 119" stroke="#8ED1FF" stroke-width="12" stroke-linecap="round"/>
-  <path d="M100 176V202" stroke="#8ED1FF" stroke-width="12" stroke-linecap="round"/>
-  <path d="M73 202H127" stroke="#8ED1FF" stroke-width="12" stroke-linecap="round"/>
-  <path d="M146 84H197" stroke="#2DD4BF" stroke-width="12" stroke-linecap="round"/>
-  <path d="M177 61L200 84L177 107" stroke="#2DD4BF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M195 141H144" stroke="#F59E0B" stroke-width="12" stroke-linecap="round"/>
-  <path d="M164 118L141 141L164 164" stroke="#F59E0B" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M154 203C154 194.716 160.716 188 169 188H195C203.284 188 210 194.716 210 203V205C210 213.284 203.284 220 195 220H169C160.716 220 154 213.284 154 205V203Z" fill="#151D2E" stroke="#2F415F" stroke-width="2"/>
-  <path d="M171 207H193" stroke="#EEF3FB" stroke-width="8" stroke-linecap="round"/>
+  <rect width="256" height="256" rx="56" fill="#07121C"/>
+  <rect x="18" y="18" width="220" height="220" rx="44" fill="url(#panel)" stroke="#25435A" stroke-width="2"/>
+  <circle cx="78" cy="96" r="34" fill="#20C997"/>
+  <path d="M63 102C63 93.1634 70.1634 86 79 86H83C91.8366 86 99 93.1634 99 102V119C99 127.837 91.8366 135 83 135H79C70.1634 135 63 127.837 63 119V102Z" fill="#06111A" fill-opacity=".42"/>
+  <path d="M47 112C47 133.539 62.6701 151 82 151C101.33 151 117 133.539 117 112" stroke="#EAF7F2" stroke-width="10" stroke-linecap="round"/>
+  <path d="M82 151V169" stroke="#EAF7F2" stroke-width="10" stroke-linecap="round"/>
+  <path d="M63 169H101" stroke="#EAF7F2" stroke-width="10" stroke-linecap="round"/>
+  <path d="M138 65H190C202.15 65 212 74.8497 212 87V117C212 129.15 202.15 139 190 139H170L145 161V139H138C125.85 139 116 129.15 116 117V87C116 74.8497 125.85 65 138 65Z" fill="#0F2233" stroke="#3AA7FF" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M143 102H185" stroke="#A9DCFF" stroke-width="9" stroke-linecap="round"/>
+  <path d="M143 121H172" stroke="#A9DCFF" stroke-width="9" stroke-linecap="round"/>
+  <path d="M139 183L158 143H181L164 173H190L152 219L163 183H139Z" fill="#FFB020" stroke="#FFE4A3" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M52 207C75 220 104 222 128 211" stroke="#20C997" stroke-width="9" stroke-linecap="round"/>
+  <path d="M188 44C204 53 217 67 224 84" stroke="#3AA7FF" stroke-width="9" stroke-linecap="round"/>
   <defs>
-    <linearGradient id="bg" x1="36" y1="33" x2="224" y2="226" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#101B31"/>
-      <stop offset="0.55" stop-color="#0B1425"/>
-      <stop offset="1" stop-color="#0C1F2A"/>
+    <linearGradient id="panel" x1="34" y1="25" x2="225" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#102337"/>
+      <stop offset=".52" stop-color="#091827"/>
+      <stop offset="1" stop-color="#0B2A2A"/>
     </linearGradient>
   </defs>
 </svg>
