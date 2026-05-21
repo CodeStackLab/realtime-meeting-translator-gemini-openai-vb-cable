@@ -52,6 +52,9 @@ class LiveSession {
     this.voiceActiveSince = 0;
     this.lastVoiceAt = 0;
     this.lastSoftFlushAt = 0;
+    this.flushHoldUntil = 0;
+    this.pendingAudioAfterFlush = [];
+    this.drainFlushTimer = null;
   }
 
   async open(micStream) {
@@ -172,10 +175,7 @@ class LiveSession {
           bytesBase64: base64.length,
         });
       }
-      await window.electronAPI.liveSendAudio({
-        sessionId: this.sessionId,
-        audioBase64: base64,
-      });
+      await this._sendOrQueueAudio(base64);
       this._trackInputLevel(rms);
       await this._maybeSoftFlush(rms);
     };
@@ -199,6 +199,47 @@ class LiveSession {
     this.silenceFrames += 1;
   }
 
+  async _sendOrQueueAudio(base64) {
+    if (Date.now() < this.flushHoldUntil) {
+      this.pendingAudioAfterFlush.push(base64);
+      this._scheduleFlushDrain();
+      return;
+    }
+    await window.electronAPI.liveSendAudio({
+      sessionId: this.sessionId,
+      audioBase64: base64,
+    });
+  }
+
+  _scheduleFlushDrain() {
+    if (this.drainFlushTimer) return;
+    const delay = Math.max(20, this.flushHoldUntil - Date.now() + 10);
+    this.drainFlushTimer = setTimeout(() => {
+      this.drainFlushTimer = null;
+      this._drainQueuedAudio();
+    }, delay);
+  }
+
+  async _drainQueuedAudio() {
+    if (!this.isOpen || Date.now() < this.flushHoldUntil) {
+      this._scheduleFlushDrain();
+      return;
+    }
+    const queue = this.pendingAudioAfterFlush.splice(0);
+    for (const audioBase64 of queue) {
+      await window.electronAPI.liveSendAudio({
+        sessionId: this.sessionId,
+        audioBase64,
+      });
+    }
+    if (queue.length) {
+      window.electronAPI.logEvent('renderer.soft-flush.drain', {
+        sessionId: this.sessionId,
+        queuedChunks: queue.length,
+      });
+    }
+  }
+
   async _maybeSoftFlush(rms) {
     if (this.provider !== 'gemini' || this.translationMode !== 'fast') return;
 
@@ -220,12 +261,15 @@ class LiveSession {
     if (now - this.lastSoftFlushAt < 950) return;
 
     this.lastSoftFlushAt = now;
+    this.flushHoldUntil = now + 220;
     window.electronAPI.logEvent('renderer.soft-flush', {
       sessionId: this.sessionId,
       mode: this.translationMode,
       activeMs: now - this.voiceActiveSince,
+      holdMs: this.flushHoldUntil - now,
     });
     await window.electronAPI.liveSendTurnComplete({ sessionId: this.sessionId });
+    this._scheduleFlushDrain();
   }
 
   _floatToPcm16Base64(float32) {
@@ -360,6 +404,11 @@ class LiveSession {
       this._sinkAudio = null;
       this._sinkDestination = null;
     }
+    if (this.drainFlushTimer) {
+      clearTimeout(this.drainFlushTimer);
+      this.drainFlushTimer = null;
+    }
+    this.pendingAudioAfterFlush = [];
     await window.electronAPI.liveClose({ sessionId: this.sessionId });
   }
 }

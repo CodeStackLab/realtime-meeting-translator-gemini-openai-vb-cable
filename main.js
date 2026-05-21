@@ -31,6 +31,7 @@ function getRealtimeInputConfig(mode = 'fast') {
       ...selected,
     },
     turnCoverage: 'TURN_INCLUDES_ONLY_ACTIVITY',
+    activityHandling: 'NO_INTERRUPTION',
   };
 }
 
