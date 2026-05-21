@@ -1,6 +1,6 @@
-# All Meeting Realtime Voice Translator
+# All Meeting Speech-to-Speech Voice Translation With Captions
 
-Real-time speech-to-speech meeting translator for Zoom, Microsoft Teams, Google Meet, and other meeting software that lets you choose microphone and speaker devices.
+Real-time speech-to-speech voice translation with captions for all meetings, including Zoom, Microsoft Teams, Google Meet, and other meeting software, using Gemini Live or OpenAI Realtime voice models with VB-Cable A+B audio routing.
 
 The app uses VB-Cable A+B virtual audio cables to route meeting audio into a realtime AI translation session and route translated voice back into the meeting.
 

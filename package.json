@@ -1,7 +1,7 @@
 {
-  "name": "all-meeting-realtime-voice-translator",
+  "name": "all-meeting-speech-to-speech-voice-translation-captions-gemini-openai-vb-cable",
   "version": "1.0.0",
-  "description": "Real-time speech-to-speech meeting translator for Zoom, Microsoft Teams, and Google Meet using virtual audio cables.",
+  "description": "Real-time speech-to-speech voice translation with captions for Zoom, Microsoft Teams, Google Meet, and other meetings using Gemini, OpenAI, and VB-Cable A+B.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
