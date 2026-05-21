@@ -257,11 +257,11 @@ class LiveSession {
       return;
     }
 
-    if (now - this.voiceActiveSince < 650) return;
-    if (now - this.lastSoftFlushAt < 950) return;
+    if (now - this.voiceActiveSince < 520) return;
+    if (now - this.lastSoftFlushAt < 720) return;
 
     this.lastSoftFlushAt = now;
-    this.flushHoldUntil = now + 220;
+    this.flushHoldUntil = now + 300;
     window.electronAPI.logEvent('renderer.soft-flush', {
       sessionId: this.sessionId,
       mode: this.translationMode,

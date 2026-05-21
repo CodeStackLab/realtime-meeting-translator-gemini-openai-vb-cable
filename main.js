@@ -17,6 +17,16 @@ function normalizeTranslationMode(mode) {
 }
 
 function getRealtimeInputConfig(mode = 'fast') {
+  if (normalizeTranslationMode(mode) === 'fast') {
+    return {
+      automaticActivityDetection: {
+        disabled: true,
+      },
+      turnCoverage: 'TURN_INCLUDES_ONLY_ACTIVITY',
+      activityHandling: 'NO_INTERRUPTION',
+    };
+  }
+
   const timings = {
     fast: { prefixPaddingMs: 60, silenceDurationMs: 100 },
     balanced: { prefixPaddingMs: 140, silenceDurationMs: 350 },
@@ -33,6 +43,10 @@ function getRealtimeInputConfig(mode = 'fast') {
     turnCoverage: 'TURN_INCLUDES_ONLY_ACTIVITY',
     activityHandling: 'NO_INTERRUPTION',
   };
+}
+
+function usesManualActivity(provider, mode) {
+  return provider === 'gemini' && normalizeTranslationMode(mode) === 'fast';
 }
 
 function getOpenAiTurnDetection(mode = 'fast') {
@@ -353,7 +367,12 @@ ipcMain.handle('live-open', (event, {
       return;
     }
 
-    liveSessions[sessionId] = { ws, provider };
+    liveSessions[sessionId] = {
+      ws,
+      provider,
+      manualActivity: usesManualActivity(provider, translationMode),
+      activityOpen: false,
+    };
 
     ws.on('open', () => {
       try {
@@ -403,7 +422,13 @@ ipcMain.handle('live-open', (event, {
             },
           },
         }));
-        logEvent('ws.setup.sent', { sessionId, provider, selectedModel, outputMode });
+        logEvent('ws.setup.sent', {
+          sessionId,
+          provider,
+          selectedModel,
+          outputMode,
+          manualActivity: usesManualActivity(provider, translationMode),
+        });
       } catch (e) {
         logEvent('ws.setup.error', { sessionId, provider, error: e.message });
         finish({ success: false, error: e.message || 'Could not send Live setup message' });
@@ -568,6 +593,11 @@ ipcMain.handle('live-send-audio', (event, { sessionId, audioBase64 }) => {
     if (session.provider === 'openai') {
       ws.send(JSON.stringify({ type: 'input_audio_buffer.append', audio: audioBase64 }));
     } else {
+      if (session.manualActivity && !session.activityOpen) {
+        ws.send(JSON.stringify({ realtimeInput: { activityStart: {} } }));
+        session.activityOpen = true;
+        logEvent('live-activity-start', { sessionId });
+      }
       ws.send(JSON.stringify({
         realtimeInput: {
           audio: {
@@ -590,11 +620,18 @@ ipcMain.handle('live-send-turn-complete', (event, { sessionId }) => {
   if (!ws || ws.readyState !== WebSocket.OPEN) return { success: false, error: 'No session' };
   if (session.provider !== 'gemini') return { success: true };
   try {
-    ws.send(JSON.stringify({
-      realtimeInput: {
-        audioStreamEnd: true,
-      },
-    }));
+    if (session.manualActivity) {
+      if (!session.activityOpen) return { success: true };
+      ws.send(JSON.stringify({ realtimeInput: { activityEnd: {} } }));
+      session.activityOpen = false;
+      logEvent('live-activity-end', { sessionId });
+    } else {
+      ws.send(JSON.stringify({
+        realtimeInput: {
+          audioStreamEnd: true,
+        },
+      }));
+    }
     logEvent('live-send-turn-complete', { sessionId });
     return { success: true };
   } catch (e) {
